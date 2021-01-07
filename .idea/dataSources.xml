@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
+    <data-source source="LOCAL" name="doitnews@mysql.doitnews.co.kr" uuid="514178e0-7c4b-4cc1-a6a2-fe23b8b5abaf">
+      <driver-ref>mysql.8</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:mysql://mysql.doitnews.co.kr:3306/doitnews</jdbc-url>
+    </data-source>
+  </component>
+</project>
