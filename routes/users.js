@@ -10,17 +10,17 @@ var router = express.Router();
  */
 /**
  * @swagger
- * /user/:
+ * /path/:
  *   get:
- *     summary: 사용자 정보 가져오기
- *     tags: [User]
+ *     summary:
+ *     tags:
  *     parameters:
- *       - in: query
- *         name: id
- *         type: string
- *         enum: [cjung, gglee, etc..]
+ *       - in:
+ *         name:
+ *         type:
+ *         enum:
  *         description: |
- *          사용자 아이디 전달
+ *
  *     responses:
  *       200:
  *         description: 성공

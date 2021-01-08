@@ -2,14 +2,15 @@
 'use strict';
 module.exports = {
     swaggerDefinition: {
-        // 정보
+        openapi : "3.0.0", //우리가 사용하고 있는 Open Api 버전
+        // Api에 필요한 정보를 다룸(선택필드)
         info: {
-            title: 'Express Service with Swagger',
-            version: '1.0.0',
-            description: 'a Rest api using swagger and express.'
+            title: 'Express Service with Swagger', //Api 제목
+            version: '1.0.0', //api 버전
+            description: 'a Rest api using swagger and express.' //api 상세정보
         },
         // 주소
-        host: "localhost:3000",
+        host: "localhost:3000/api-docs",
         // 기본 root path
         basePath: "/",
         contact: {
@@ -70,5 +71,10 @@ module.exports = {
                 }
             }
     },
+<<<<<<< HEAD
     apis: ['./routes/**/*.js'] // api 파일 위치들
 };
+=======
+    apis: ['./routes/*.js'] // api 파일 위치들
+};
+>>>>>>> 9856ffa0f9c389c857b1d9c01e401e9b6c5c77d3
