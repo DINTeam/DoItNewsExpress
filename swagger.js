@@ -1,6 +1,5 @@
 
 'use strict';
-
 module.exports = {
     swaggerDefinition: {
         // 정보
@@ -16,6 +15,8 @@ module.exports = {
         contact: {
             email: "doitnews@gmail.com"
         },
+
+
         // 각 api에서 설명을 기록할 때 사용할 constant들을 미리 등록해놓는것
         components: {
             res: {
