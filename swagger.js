@@ -53,7 +53,9 @@ module.exports = {
             }
         },
         schemes: ["http", "https"], // 가능한 통신 방식
-        definitions:  // 모델 정의 (User 모델에서 사용되는 속성 정의)
+        definitions:  // 모델 정의 (User 모델에서 사용되는 속성 정의) - 여기서 정의하는 db모델정보나,
+                      // components에 작성하는 정의들은 모든 API들에 '공통'으로 적용할 수 있는 내용들이다.
+                      // 각각의 API 문서 정의에서 $ref로 접근하여 사용할 수 있다.
             {
                 'User': {
                     type: 'object',
@@ -71,10 +73,5 @@ module.exports = {
                 }
             }
     },
-<<<<<<< HEAD
     apis: ['./routes/**/*.js'] // api 파일 위치들
 };
-=======
-    apis: ['./routes/*.js'] // api 파일 위치들
-};
->>>>>>> 9856ffa0f9c389c857b1d9c01e401e9b6c5c77d3
