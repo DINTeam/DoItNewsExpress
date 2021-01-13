@@ -7,14 +7,23 @@
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
+    "crypto-promise": "^2.1.0",
     "debug": "~2.6.9",
     "ejs": "~2.6.1",
     "express": "^4.17.1",
     "express-error-handler": "^1.1.0",
     "express-session": "^1.17.1",
     "http-errors": "~1.6.3",
+<<<<<<< HEAD
     "morgan": "~1.9.1",
     "mysql": "^2.18.1",
+=======
+    "jsonwebtoken": "^8.5.1",
+    "morgan": "^1.9.1",
+    "mysql": "^2.18.1",
+    "mysql2": "^2.2.5",
+    "pug": "^3.0.0",
+>>>>>>> 60835fc7aa335e50a2e395d346f2d4cfd4876bb4
     "swagger-codegen": "^0.1.1",
     "swagger-jsdoc": "^6.0.1",
     "swagger-ui-express": "^4.1.6"
