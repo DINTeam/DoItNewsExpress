@@ -6,6 +6,7 @@ var logger = require('morgan');
 const swaggerJSDoc = require('swagger-jsdoc');
 const swaggerOption = require('./swagger');
 const swaggerUi = require('swagger-ui-express');
+const session = require("express-session");
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -28,6 +29,15 @@ app.use('/users', usersRouter);
 const swaggerSpec = swaggerJSDoc(swaggerOption);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
+app.use(session({
+  key : 'sid',
+  secret : 'secret',
+  resave : false,
+  saveUninitialized : true,
+  cookie : {
+    maxAge : 24000 * 60 * 60
+  }
+}));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -1,38 +1,14 @@
 var express = require('express');
 var app= express();
 var router = express.Router();
-var serveStatic = require('serve-static');      //특정 폴더의 파일들을 특정 패스로 접근할 수 있도록 열어주는 역할
-var path = require('path');
-var mysql = require('mysql');
-var cookieParser = require('cookie-parser');
-var expressSession = require('express-session');
-var expressErrorHandler = require('express-error-handler');
 var bodyParser_post = require('body-parser');
+const pool = require('../utils/pool')
+const crypto = require('crypto');
+var User = ('../routes');
 
 //use사용해서 미들웨어 등록하기
 app.use(bodyParser_post.urlencoded({extende : false}));
 app.use(bodyParser_post.json());
-
-var conn = mysql.createConnection({
-  port : 3000,
-  user : 'admin',
-  password : 'doitnews',
-  database : 'doitnews'
-});
-conn.connect();
-
-router.post("/sign_up", function(req,res,next){
-  var body = req.body;
-  var email = body.email;
-  var phone = body.phone;
-  var pw = body.password;
-
-  var query = conn.query('insert into user (user_email, user_pw,user_phone ) values ("' + email + '","' + phone + '","' + pw + '")', function(err, rows) {
-    if(err) { throw err;}
-    console.log("Data inserted!");
-  })
-})
-
 /* GET users listing. */
 /**
  * @swagger
@@ -73,6 +49,45 @@ router.post("/sign_up", function(req,res,next){
  *         $ref: '#/components/res/BadRequest'
  */
 
+router.post('/:register',async function (req,res) {
+  var id = req.body.id;
+  var email=req.body.email;
+  var input_password = req.body.password;
+  var salt = Math.round((new Date().valueOf() + Math.random())) + "";
+  var hashPassword = crypto.createHash("sha512").update(input_password+salt).digest("hex");
+  var phone = req.body.phone;
+
+  pool.query("INSERT INTO user (user_id,user_email,user_pw,user_phone,salt) VALUES(?,?,?,?,?)",
+      [id,email,hashPassword,phone,salt], function(err, rows){
+    if(err){
+      console.log(err);
+      res.status(500).send(mysql_odbc.error);
+      }else {
+      res.status(200).send(mysql_odbc.success);
+      }
+  });
+});
+
+router.post("/:login",async function(req,res,next){
+  var result = User.findOne({
+    where : {
+      email : req.body.email
+    }
+  });
+
+  var db_password = result.dataValues.password;
+  var input_password = req.body.password;
+  var salt = result.dataValues.salt;
+  var hash_password = crypto.createHash("sha512").update(input_password+salt).digest("hex");
+
+  if(db_password == hash_password){
+    console.log("비밀번호 일치");
+    req.session.email =req.body.email;
+  }else{
+    console.log("비밀번호 불일치");
+    res.redirect("/:login");
+  }
+})
 router.get('/', function(req, res, next) {
   res.send('respond with a resource');
 });
