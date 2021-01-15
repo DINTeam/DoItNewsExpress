@@ -31,8 +31,6 @@ app.use('/users', require('./routes/users'));
 const swaggerSpec = swaggerJSDoc(swaggerOption);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-<<<<<<< HEAD
-=======
 app.use(session({
   key : 'sid',
   secret : 'secret',
@@ -43,7 +41,6 @@ app.use(session({
   }
 }));
 
->>>>>>> e1abce39c42f61861e8253164f433da59157cd57
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
