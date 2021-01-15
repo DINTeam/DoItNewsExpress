@@ -11,20 +11,18 @@ const pool = require('../utils/pool')
  * @apiHeader {String} x-access-token Users Login Token
  *
  */
-router.get('/', function (req, res, next) {
-    if (req.userInfo) {
-        conn.query('SELECT * FROM search_history', function (err, searchHistoryList) {
-            if (err) {
-                console.log(err);
-                res.status(500).send(mysql_odbc.error);
-            } else {
-                res.status(200).send(searchHistoryList);
-            }
-        })
-    } else {
-        res.status(403).send({msg: '권한이 없습니다.'});
+router.get('/', async (req,res,next) => {
+    if (req.userInfo){
+        try{
+            const data = await pool.query('SELECT * FROM search_history')
+                return res.json(data[0])
+        }catch (err){
+            return  res.status(500).json(err)
+        }
+    }else{
+        res.status(403).send({"message" : "Token error!"});
     }
-});
+})
 
 /**
  * @api {get} search_history/:userSeq 검색기록 목록 보기
