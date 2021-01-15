@@ -8,6 +8,7 @@ const asyncify = require('express-asyncify');
 const swaggerJSDoc = require('swagger-jsdoc');
 const swaggerOption = require('./swagger');
 const swaggerUi = require('swagger-ui-express');
+const session = require("express-session");
 
 const app = asyncify(express());
 
@@ -30,6 +31,19 @@ app.use('/users', require('./routes/users'));
 const swaggerSpec = swaggerJSDoc(swaggerOption);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
+<<<<<<< HEAD
+=======
+app.use(session({
+  key : 'sid',
+  secret : 'secret',
+  resave : false,
+  saveUninitialized : true,
+  cookie : {
+    maxAge : 24000 * 60 * 60
+  }
+}));
+
+>>>>>>> e1abce39c42f61861e8253164f433da59157cd57
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
