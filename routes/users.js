@@ -87,7 +87,8 @@ router.post("/:login",async function(req,res,next){
     console.log("비밀번호 불일치");
     res.redirect("/:login");
   }
-})
+});
+
 router.get('/', function(req, res, next) {
   res.send('respond with a resource');
 });
