@@ -11,7 +11,6 @@ const swaggerUi = require('swagger-ui-express');
 const session = require("express-session");
 
 const app = asyncify(express());
-
 let tokenMiddleWare = require('./utils/tokenAuth');
 
 // view engine setup
@@ -24,6 +23,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(tokenMiddleWare);
+app.use('portfolio',require('./routes/portfolio'));
 
 app.use('/', require('./routes/index'));
 app.use('/users', require('./routes/users'));
