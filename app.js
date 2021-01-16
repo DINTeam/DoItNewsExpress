@@ -11,7 +11,7 @@ const swaggerUi = require('swagger-ui-express');
 const session = require("express-session");
 
 const app = asyncify(express());
-let tokenMiddleWare = require('./utils/tokenAuth');
+let tokenMiddleWare = require('./utils/token');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -27,6 +27,11 @@ app.use('portfolio',require('./routes/portfolio'));
 
 app.use('/', require('./routes/index'));
 app.use('/users', require('./routes/users'));
+app.user('/search_history',require('./routes/search_history'));
+app.use('/coin',require('./routes/coin'));
+app.use('/comment',require('./routes/comment'));
+app.use('/category',require('./routes/category'));
+app.use('/mypage',require('./routes/mypage'));
 
 const swaggerSpec = swaggerJSDoc(swaggerOption);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

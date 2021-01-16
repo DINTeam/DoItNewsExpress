@@ -3,13 +3,32 @@ let router = express.Router()
 const pool = require('../utils/pool')
 
 /**
- * @api {get} search_history/ 검색기록 목록 보기
- * @apiVersion 0.1.0
- * @apiGroup SearchHistory
- * @apiName 검색기록 목록보기
- *
- * @apiHeader {String} x-access-token Users Login Token
- *
+ * @swagger
+ * tags:
+ *   name: search_history
+ *   description: 검색기록
+ */
+
+/**
+ * @swagger
+ * /search_history/:
+ *   get:
+ *     summary: 검색기록조회
+ *     tags: [search_history]
+ *     parameters:
+ *       - in: userInfo
+ *         name: userInfo
+ *         type: string
+ *         description: 사용자 정보 조회
+ *     responses:
+ *       200:
+ *         description: 성공
+ *       403:
+ *         $ref: '#/components/res/Forbidden'
+ *       404:
+ *         $ref: '#/components/res/NotFound'
+ *       500:
+ *         $ref: '#/components/res/BadRequest'
  */
 router.get('/', async (req,res,next) => {
     if (req.userInfo){
@@ -25,56 +44,86 @@ router.get('/', async (req,res,next) => {
 })
 
 /**
- * @api {get} search_history/:userSeq 검색기록 목록 보기
- * @apiVersion 0.1.0
- * @apiGroup SearchHistory
- * @apiName 검색기록 목록보기
- *
- * @apiHeader {String} x-access-token Users Login Token
+ * @swagger
+ * /search_history/:user_id :
+ *   get:
+ *     summary: 검색기록 조회
+ *     tags: [search_history]
+ *     parameters:
+ *       - in: userInfo.user_id
+ *         name: user_id
+ *         type: int
+ *         description:사용자 id 정보
+ *     responses:
+ *       200:
+ *         description: 성공
+ *       403:
+ *         $ref: '#/components/res/Forbidden'
+ *       404:
+ *         $ref: '#/components/res/NotFound'
+ *       500:
+ *         $ref: '#/components/res/BadRequest'
  */
-router.get('/:userSeq', function (req, res, next) {
-    if (req.userInfo) {
-        var userSeq = req.userInfo.userSeq;
-        conn.query('SELECT * FROM search_history WHERE user_id = ?', userSeq, function (err, searchHistoryList) {
-            if (err) {
-                console.log(err);
-                res.status(500).send(mysql_odbc.error);
-            } else {
-                res.status(200).send(searchHistoryList[0]);
-            }
-        })
-    } else {
-        res.status(403).send({msg: '권한이 없습니다.'});
+router.get('/:user_id', async (req,res,next) => {
+    if (req.userInfo){
+        try{
+            var user_id = req.userInfo.user_id;
+            const data = await pool.query('SELECT * FROM search_history WHERE user_id = ?', user_id)
+            return res.json(data[0])
+        }catch (err){
+            return  res.status(500).json(err)
+        }
+    }else{
+        res.status(403).send({"message" : "권한이 없습니다"});
     }
-});
+})
 
 /**
- * @api {post} search_history/ 검색기록 등록
- * @apiVersion 0.1.0
- * @apiGroup SearchHistory
- * @apiName 검색기록 등록
+ * @swagger
+ * /search_history/:user_id :
+ *   get:
+ *     summary: 검색 기록 추가
+ *     tags: [search_history]
+ *     parameters:
+ *       - in: userInfo.user_id
+ *         name: userInfo.user_id
+ *         type: int
+ *         description: 사용자 id 정보
  *
- * @apiHeader {String} x-access-token Users Login Token
- * @apiParam  {String} searchContent
- * @apiParam {Int} searchTime
+ *       - in: body.s_keyword
+ *         name: s_keyword
+ *         type: string
+ *         description: 검색 키워드
  *
- *
+ *       - in: body.s_time
+ *         name: s_time
+ *         type: bigint
+ *         description:검색 시간
+ *     responses:
+ *       200:
+ *         description: 성공
+ *       403:
+ *         $ref: '#/components/res/Forbidden'
+ *       404:
+ *         $ref: '#/components/res/NotFound'
+ *       500:
+ *         $ref: '#/components/res/BadRequest'
  */
 
-router.post('/', function (req, res, next) {
+router.post('/:user_id', function (req, res, next) {
     if (req.userInfo) {
-        var userSeq = req.userInfo.userSeq;
+        var user_id = req.userInfo.user_id;
         var params = {
-            userSeq : userSeq,
-            searchContent: req.body.searchContent,
-            searchTime: req.body.searchTime
+            user_id : user_id,
+            s_keyword: req.body.s_keyword,
+            s_time: req.body.s_time
         };
-        conn.query('INSERT INTO search_history SET ?' , params, function (err, result) {
+        pool.query('INSERT INTO search_history SET ?' , params, function (err, result) {
             if(err){
                 console.log(err);
-                res.status(500).send(mysql_odbc.error);
+                res.status(500).json(err);
             } else{
-                res.status(200).send(mysql_odbc.success);
+                res.status(200).send({msg: 'success'});
             }
         });
     }else{
@@ -82,30 +131,52 @@ router.post('/', function (req, res, next) {
     }
 });
 
+
 /**
- * @api {post} search_history/:userSeq 검색기록 수정
- * @apiVersion 0.1.0
- * @apiGroup SearchHistory
- * @apiName 검색기록 수정
+ * @swagger
+ * /search_history/:user_id :
+ *   get:
+ *     summary: 검색 기록 수정
+ *     tags: [search_history]
+ *     parameters:
+ *       - in: userInfo.user_id
+ *         name: userInfo.user_id
+ *         type: int
+ *         description: 사용자 id 정보
  *
- * @apiHeader {String} x-access-token Users Login Token
- * @apiParam  {String} searchContent
- * @apiParam {Int} searchTime
+ *       - in: body.s_keyword
+ *         name: s_keyword
+ *         type: string
+ *         description: 검색 키워드
+ *
+ *       - in: body.s_time
+ *         name: s_time
+ *         type: bigint
+ *         description:검색 시간
+ *     responses:
+ *       200:
+ *         description: 성공
+ *       403:
+ *         $ref: '#/components/res/Forbidden'
+ *       404:
+ *         $ref: '#/components/res/NotFound'
+ *       500:
+ *         $ref: '#/components/res/BadRequest'
  */
-router.post('/:userSeq',function (req,res,next) {
+router.post('/:user_id',function (req,res,next) {
     if (req.userInfo) {
-        var userSeq = req.userInfo.userSeq;
+        var user_id = req.userInfo.user_id;
         var params = {
-            userSeq : userSeq,
-            searchContent: req.body.searchContent,
-            searchTime: req.body.searchTime
+            user_id : user_id,
+            s_keyword: req.body.s_keyword,
+            s_time: req.body.s_time
         };
-        conn.query('UPDATE search_history SET s_keyword=?,s_time=?WHERE user_id = ?' , [params, userSeq], function (err, result) {
+        pool.query('UPDATE search_history SET s_keyword=?,s_time=?WHERE user_id = ?' , [params, user_id], function (err, result) {
             if(err){
                 console.log(err);
-                res.status(500).send(mysql_odbc.error);
+                res.status(500).json(err);
             } else{
-                res.status(200).send(mysql_odbc.success);
+                res.status(200).send({msg: 'success'});
             }
         });
     }else{
@@ -113,24 +184,38 @@ router.post('/:userSeq',function (req,res,next) {
     }
 });
 
-/**
- * @api {post} search_history/:userSeq 검색기록 삭제
- * @apiVersion 0.1.0
- * @apiGroup SearchHistory
- * @apiName 검색기록 삭제
- *
- * @apiHeader {String} x-access-token Users Login Token
- */
-router.post('/:userSeq',function (req,res,next) {
-    if (req.userInfo) {
-        var userSeq = req.userInfo.userSeq;
 
-        conn.query('DELETE from search_history WHERE user_id = ?' , userSeq, function (err, result) {
+/**
+ * @swagger
+ * /search_history/:user_id :
+ *   get:
+ *     summary: 검색 기록 삭제
+ *     tags: [search_history]
+ *     parameters:
+ *       - in: userInfo.user_id
+ *         name: userInfo.user_id
+ *         type: int
+ *         description: 사용자 id 정보
+ *     responses:
+ *       200:
+ *         description: 성공
+ *       403:
+ *         $ref: '#/components/res/Forbidden'
+ *       404:
+ *         $ref: '#/components/res/NotFound'
+ *       500:
+ *         $ref: '#/components/res/BadRequest'
+ */
+router.post('/:user_id',function (req,res,next) {
+    if (req.userInfo) {
+        var user_id = req.userInfo.user_id;
+
+        pool.query('DELETE from search_history WHERE user_id = ?' , user_id, function (err, result) {
             if(err){
                 console.log(err);
-                res.status(500).send(mysql_odbc.error);
+                res.status(500).json(err);
             } else{
-                res.status(200).send(mysql_odbc.success);
+                res.status(200).send({msg: 'success'});
             }
         });
     }else{

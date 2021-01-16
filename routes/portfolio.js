@@ -154,4 +154,3 @@ router.get('/list/:page', function(req,res){
 
     })
 })*/ // 나중에 다시
-
