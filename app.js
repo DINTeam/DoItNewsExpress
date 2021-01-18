@@ -27,7 +27,11 @@ app.use('portfolio',require('./routes/portfolio'));
 
 app.use('/', require('./routes/index'));
 app.use('/users', require('./routes/users'));
-app.user('/search_history',require('./routes/search_history'));
+app.use('/search_history',require('./routes/search_history'));
+app.use('/article',require('./routes/article'));
+app.use('/portfolio',require('./routes/portfolio'));
+app.use('/scrab',require('./routes/scrab'));
+app.use('/like',require('./routes/like'));
 app.use('/coin',require('./routes/coin'));
 app.use('/comment',require('./routes/comment'));
 app.use('/category',require('./routes/category'));
