@@ -104,32 +104,15 @@ router.get('/detail/:p_id',function (req,res) {
     if(req.userInfo){
         try{
             var p_id = req.body.p_id;
-            pool.beginTransaction(function(err){
-                pool.query('update portfolio set p_views = p_views + 1 where p_id = ?',[p_id],function(err){
-                    if(err){
-                        console.log(err);
-                        pool.rollback(function () {
-                            console.log('rollback error1');
-                        })
-                    }
-                    pool.query('select p_id,p_title,p_category,DATE_FORMAT(p_start_date,"%Y-%M-%D" as p_start_date,DATE_FORMAT(p_end_date,"%Y-%M-%D" as p_end_date,p_purpose,p_process)'+
-                        'from portfolio where p_id =?',[p_id],function(err,rows){
-                        if(err){
-                            console.log(err);
-                            pool.rollback(function () {
-                                cosole.log('rollback error2');
-                            })
-                        }else{
-                            pool.commit(function (err) {
-                                if(err) console.log(err);
-                                console.log("row : "+ rows);
-                                res.render('/detail',{rows : rows});
-                            })
-                        }
-                    })
-                })
-
-            })
+            pool.query('select p_id,p_title,p_category,DATE_FORMAT(p_start_date,"%Y-%M-%D" as p_start_date,DATE_FORMAT(p_end_date,"%Y-%M-%D" as p_end_date,p_purpose,p_process)'+
+                        'from portfolio where p_id =?',[p_id],function(req,res){
+                if(err){
+                    console.log(err);
+                    res.status(500).json(err);
+                }else{
+                    res.status(200).send({msg: 'success'});
+                }
+            });
         }catch(err){
             return res.status(500).json(err);
         }
@@ -277,7 +260,7 @@ router.post('/delete/:p_id', function(req,res){
     }
 });
 
-module.exports = router
+module.exports = router;
 /* 페이징
 router.get('/list/:page', function(req,res){
     var page_size = 10;

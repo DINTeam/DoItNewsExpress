@@ -41,13 +41,17 @@ router.post('/:ar_id/like', function(req,res){
         try{
             var user_id = req.userInfo.user_id;
             var ar_id = req.body.ar_id;
-            pool.query('select like_check from is_like where user_id =? and ar_id =?', user_id,ar_id,function (req,res) {
-                if(like_check == 0){
-                    pool.query('insert into is_like(ar_id,user_id,like_check) values (?,?,1)',ar_id,user_id);
-                }else if(like_check==1){
-                    pool.query('delete from is_like where user_id = ? and ar_id =? ',user_id,ar_id);
-                }
-            });
+            pool.beginTransaction(function(err){
+                pool.query('select like_check from is_like where user_id =? and ar_id =?', user_id,ar_id,function (req,res) {
+                    if(like_check == 0){
+                        pool.query('insert into is_like(ar_id,user_id,like_check) values (?,?,1)',ar_id,user_id);
+                        pool.query('update article set ar_likes = ar_likes+1 wehre ar_id=?', ar_id);
+                    }else if(like_check==1){
+                        pool.query('delete from is_like where user_id = ? and ar_id =? ',user_id,ar_id);
+                    }
+                });
+            })
+
         }catch(err) {
             return res.send(500).json(err);
         }
@@ -55,3 +59,4 @@ router.post('/:ar_id/like', function(req,res){
         res.status(403).send({msg : "권한이 없습니다."});
     }
 });
+module.exports = router;

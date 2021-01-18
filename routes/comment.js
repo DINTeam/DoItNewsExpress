@@ -181,4 +181,4 @@ router.post('/:ar_id',function (req,res,next) {
         res.status(403).send({msg: '권한이 없습니다.'});
     }
 });
-module.exports = router
+module.exports = router;

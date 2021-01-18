@@ -1,11 +1,8 @@
 var express = require('express');
-var app= express();
 var router = express.Router();
 const pool = require('../utils/pool')
 const crypto = require('crypto');
-var User = ('../routes');
 
-/* GET users listing. */
 /**
  * @swagger
  * tags: -"tag-for-user"

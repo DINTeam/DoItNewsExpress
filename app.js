@@ -4,6 +4,7 @@ let path = require('path');
 let cookieParser = require('cookie-parser');
 let logger = require('morgan');
 const asyncify = require('express-asyncify');
+var router = express.Router();
 
 const swaggerJSDoc = require('swagger-jsdoc');
 const swaggerOption = require('./swagger');
@@ -23,9 +24,9 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(tokenMiddleWare);
-app.use('portfolio',require('./routes/portfolio'));
+app.use('/portfolio',require('./routes/portfolio'));
 
-app.use('/', require('./routes/index'));
+app.use('/', router);
 app.use('/users', require('./routes/users'));
 app.use('/search_history',require('./routes/search_history'));
 app.use('/article',require('./routes/article'));

@@ -84,7 +84,7 @@ router.post('/:ar_id',function(req,res){
             s_title : req.body.s_title,
             s_reporter : req.body.s_reporter,
             s_like : pool.query('select ar_likes from article where ar_id =?', ar_id),
-            s_time : date
+            s_time : new Date()
         };
         pool.query('insert into scrab values(?,?,?,?,?,?) where user_id=? and ar_id=?', params,user_id,ar_id,function(req,res){
             if(err){
@@ -98,3 +98,4 @@ router.post('/:ar_id',function(req,res){
         res.status(403).send({msg : "권한이 없습니다."});
     }
 })
+module.exports = router;
