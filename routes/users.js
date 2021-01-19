@@ -49,7 +49,7 @@ router.get('/register',function(req,res){
 router.post('/register',function (req,res) {
   if(req.userInfo) {
     var params = {
-      user_id :req.body.user_id,
+      user_id : req.body.user_id,
       user_email : req.body.user_email,
       user_type : req.body.user_type
     }
@@ -57,7 +57,7 @@ router.post('/register',function (req,res) {
       var params = {
         user_id : req.body.user_id,
         user_ip : req.headers['x-forwarded-for'] ||  req.connection.remoteAddress,
-        user_datetime : new Date()
+        user_datetime : Date.now()
       }
     pool.query('insert into user_register values (?,?,?)',params);
 
@@ -69,7 +69,8 @@ router.post('/register',function (req,res) {
       user_email: req.body.user_email,
       user_pw: hash_password,
       user_phone: req.body.user_phone,
-      salt: salt}
+      salt: salt
+    }
 
     pool.query('insert into users values (?,?,?,?,?)', params,function(req,res){
       if(err){
@@ -101,7 +102,7 @@ router.post('/login',function(req,res){
     var salt = pool.query('select salt from user where user_id=?',user_id);
     var hash_password = crypto.createHash("sha512").update(input_password+salt).digest("hex");
 
-    if(db_password==hash_password){
+    if(db_password === hash_password){
       console.log("비밀번호 일치");
       req.session.email = req.body.user_email;
       res.status(200).send({msg: 'success'});
@@ -117,7 +118,6 @@ router.post('/login',function(req,res){
 router.get("/logout",function(req,res){
   req.session.destroy();
   res.clearCookie('sid');
-
   res.redirect('/login');
 });
 

@@ -67,7 +67,7 @@ router.get('/', async (req,res,next) => {
 router.get('/:user_id', async (req,res,next) => {
     if (req.userInfo){
         try{
-            var user_id = req.userInfo.user_id;
+            let user_id = req.userInfo.user_id;
             const data = await pool.query('SELECT * FROM search_history WHERE user_id = ?', user_id)
             return res.json(data[0])
         }catch (err){
@@ -130,7 +130,16 @@ router.post('/:user_id', function (req, res, next) {
         res.status(403).send({msg: '권한이 없습니다.'});
     }
 });
+/*
+    "wqeofijqeofijq"
 
+    ======================================
+
+    {
+        msg : "데이터베이스 오류입니다.",
+        code : 500
+    }
+ */
 
 /**
  * @swagger
