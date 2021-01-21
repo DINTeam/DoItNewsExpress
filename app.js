@@ -4,6 +4,7 @@ let path = require('path');
 let cookieParser = require('cookie-parser');
 let logger = require('morgan');
 const asyncify = require('express-asyncify');
+var router = express.Router();
 
 const swaggerJSDoc = require('swagger-jsdoc');
 const swaggerOption = require('./swagger');
@@ -23,11 +24,15 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(tokenMiddleWare);
-app.use('portfolio',require('./routes/portfolio'));
+app.use('/portfolio',require('./routes/portfolio'));
 
-app.use('/', require('./routes/index'));
+app.use('/', router);
 app.use('/users', require('./routes/users'));
-app.user('/search_history',require('./routes/search_history'));
+app.use('/search_history',require('./routes/search_history'));
+app.use('/article',require('./routes/article'));
+app.use('/portfolio',require('./routes/portfolio'));
+app.use('/scrab',require('./routes/scrab'));
+app.use('/like',require('./routes/like'));
 app.use('/coin',require('./routes/coin'));
 app.use('/comment',require('./routes/comment'));
 app.use('/category',require('./routes/category'));

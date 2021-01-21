@@ -126,6 +126,11 @@ router.delete('/delete', async (req,res,next) => {
     }else{
         res.status(403).send({"message" : "권한이 없습니다"});
     }
+<<<<<<< HEAD
 })
 
 module.exports = router
+=======
+});
+module.exports = router;
+>>>>>>> 45d6a40694bc151f1f67c8b16f2690e40e79563c
