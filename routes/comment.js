@@ -11,40 +11,6 @@ const pool = require('../utils/pool')
 
 /**
  * @swagger
- * /comment/:
- *   get:
- *     summary: 댓글 조회
- *     tags: [comment]
- *     parameters:
- *       - in: userInfo
- *         name: userInfo
- *         type: string
- *         description:사용자 정보 조회
- *     responses:
- *       200:
- *         description: 성공
- *       403:
- *         $ref: '#/components/res/Forbidden'
- *       404:
- *         $ref: '#/components/res/NotFound'
- *       500:
- *         $ref: '#/components/res/BadRequest'
- */
-router.get('/', async (req,res,next) => {
-    if (req.userInfo){
-        try{
-            const data = await pool.query('SELECT * FROM comment')
-            return res.json(data[0])
-        }catch (err){
-            return  res.status(500).json(err)
-        }
-    }else{
-        res.status(403).send({"message" : "Token error!"});
-    }
-})
-
-/**
- * @swagger
  * /comment/:ar_id :
  *   get:
  *     summary: 기사 댓글 조회
@@ -80,8 +46,8 @@ router.get('/:ar_id', async (req,res,next) => {
 
 /**
  * @swagger
- * /comment/:ar_id :
- *   get:
+ * /comment/add :
+ *   put:
  *     summary:댓글 달기
  *     tags: [comment]
  *     parameters:
@@ -114,34 +80,31 @@ router.get('/:ar_id', async (req,res,next) => {
  *       500:
  *         $ref: '#/components/res/BadRequest'
  */
-
-router.post('/:ar_id', function (req, res, next) {
-    if (req.userInfo) {
-        var user_id = req.userInfo.user_id;
-        var ar_id = req.body.ar_id;
-        var params = {
-            user_id : user_id,
-            ar_id : ar_id,
-            c_comment: req.body.c_comment,
-            c_time: req.body.c_time
-        };
-        pool.query('INSERT INTO search_history SET ?' , params, function (err, result) {
-            if(err){
-                console.log(err);
-                res.status(500).json(err);
-            } else{
-                res.status(200).send({msg: 'success'});
-            }
-        });
+router.put('/add', async (req,res,next) => {
+    if (req.userInfo){
+        try{
+            var user_id = req.userInfo.user_id;
+            var ar_id = req.body.ar_id;
+            var params = {
+                user_id : user_id,
+                ar_id : ar_id,
+                c_comment: req.body.c_comment,
+                c_time: req.body.c_time
+            };
+            const data = await pool.query('INSERT INTO search_history SET ?', params)
+            return res.json(data[0])
+        }catch (err){
+            return  res.status(500).json(err)
+        }
     }else{
-        res.status(403).send({msg: '권한이 없습니다.'});
+        res.status(403).send({"message" : "권한이 없습니다"});
     }
-});
+})
 
 /**
  * @swagger
- * /comment/:ar_id :
- *   get:
+ * /comment/delete :
+ *   delete:
  *     summary:댓글 삭제
  *     tags: [comment]
  *     parameters:
@@ -164,21 +127,18 @@ router.post('/:ar_id', function (req, res, next) {
  *       500:
  *         $ref: '#/components/res/BadRequest'
  */
-router.post('/:ar_id',function (req,res,next) {
-    if (req.userInfo) {
-        var user_id = req.userInfo.user_id;
-        var c_id=req.body.c_id;
-
-        pool.query('DELETE from comment WHERE user_id = ? && comment.c_id' , [user_id,c_id], function (err, result) {
-            if(err){
-                console.log(err);
-                res.status(500).json(err);
-            } else{
-                res.status(200).send({msg: 'success'});
-            }
-        });
+router.delete('/delete', async (req,res,next) => {
+    if (req.userInfo){
+        try{
+            var user_id = req.userInfo.user_id;
+            var c_id=req.body.c_id;
+            const data = await pool.query('DELETE from comment WHERE user_id = ? && comment.c_id', [user_id,c_id])
+            return res.json(data[0])
+        }catch (err){
+            return  res.status(500).json(err)
+        }
     }else{
-        res.status(403).send({msg: '권한이 없습니다.'});
+        res.status(403).send({"message" : "권한이 없습니다"});
     }
-});
+})
 module.exports = router
