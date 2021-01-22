@@ -144,7 +144,7 @@ router.patch('/update', async (req,res,next) => {
 /**
  * @swagger
  * /search_history/delete :
- *   get:
+ *    delete:
  *     summary: 검색 기록 삭제
  *     tags: [search_history]
  *     parameters:
