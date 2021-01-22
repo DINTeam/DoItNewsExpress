@@ -8,6 +8,7 @@ const pool = require('../utils/pool')
  *   name: comment
  *   description: 댓글
  */
+<<<<<<< HEAD
 
 /**
  * @swagger
@@ -43,6 +44,8 @@ router.get('/', async (req,res,next) => {
     }
 })
 
+=======
+>>>>>>> 8fb61494caf60e8f17fc3b86e20673f7306365fe
 /**
  * @swagger
  * /comment/:ar_id :
@@ -53,7 +56,11 @@ router.get('/', async (req,res,next) => {
  *       - in: body.ar_id
  *         name: ar_id
  *         type: int
+<<<<<<< HEAD
  *         description: "기사 id 정보"
+=======
+ *         description: 기사 id 정보
+>>>>>>> 8fb61494caf60e8f17fc3b86e20673f7306365fe
  *     responses:
  *       200:
  *         description: 성공
@@ -80,9 +87,15 @@ router.get('/:ar_id', async (req,res,next) => {
 
 /**
  * @swagger
+<<<<<<< HEAD
  * /comment/:ar_id :
  *   get:
  *     summary: "댓글 달기"
+=======
+ * /comment/add :
+ *   put:
+ *     summary: 댓글 달기
+>>>>>>> 8fb61494caf60e8f17fc3b86e20673f7306365fe
  *     tags: [comment]
  *     parameters:
  *       - in: userInfo.user_id
@@ -93,7 +106,11 @@ router.get('/:ar_id', async (req,res,next) => {
  *       - in: body.ar_id
  *         name: ar_id
  *         type: int
+<<<<<<< HEAD
  *         description: "기사 id 정보"
+=======
+ *         description: 기사 id 정보
+>>>>>>> 8fb61494caf60e8f17fc3b86e20673f7306365fe
  *
  *       - in: body.c_comment
  *         name: c_comment
@@ -114,35 +131,38 @@ router.get('/:ar_id', async (req,res,next) => {
  *       500:
  *         $ref: '#/components/res/BadRequest'
  */
-
-router.post('/:ar_id', function (req, res, next) {
-    if (req.userInfo) {
-        var user_id = req.userInfo.user_id;
-        var ar_id = req.body.ar_id;
-        var params = {
-            user_id : user_id,
-            ar_id : ar_id,
-            c_comment: req.body.c_comment,
-            c_time: req.body.c_time
-        };
-        pool.query('INSERT INTO search_history SET ?' , params, function (err, result) {
-            if(err){
-                console.log(err);
-                res.status(500).json(err);
-            } else{
-                res.status(200).send({msg: 'success'});
-            }
-        });
+router.put('/add', async (req,res,next) => {
+    if (req.userInfo){
+        try{
+            var user_id = req.userInfo.user_id;
+            var ar_id = req.body.ar_id;
+            var params = {
+                user_id : user_id,
+                ar_id : ar_id,
+                c_comment: req.body.c_comment,
+                c_time: req.body.c_time
+            };
+            const data = await pool.query('INSERT INTO search_history SET ?', params)
+            return res.json(data[0])
+        }catch (err){
+            return  res.status(500).json(err)
+        }
     }else{
-        res.status(403).send({msg: '권한이 없습니다.'});
+        res.status(403).send({"message" : "권한이 없습니다"});
     }
-});
+})
 
 /**
  * @swagger
+<<<<<<< HEAD
  * /comment/:ar_id :
  *   get:
  *     summary: "댓글 삭제"
+=======
+ * /comment/delete :
+ *   delete:
+ *     summary: 댓글 삭제
+>>>>>>> 8fb61494caf60e8f17fc3b86e20673f7306365fe
  *     tags: [comment]
  *     parameters:
  *       - in: userInfo.user_id
@@ -164,21 +184,18 @@ router.post('/:ar_id', function (req, res, next) {
  *       500:
  *         $ref: '#/components/res/BadRequest'
  */
-router.post('/:ar_id',function (req,res,next) {
-    if (req.userInfo) {
-        var user_id = req.userInfo.user_id;
-        var c_id=req.body.c_id;
-
-        pool.query('DELETE from comment WHERE user_id = ? && comment.c_id' , [user_id,c_id], function (err, result) {
-            if(err){
-                console.log(err);
-                res.status(500).json(err);
-            } else{
-                res.status(200).send({msg: 'success'});
-            }
-        });
+router.delete('/delete', async (req,res,next) => {
+    if (req.userInfo){
+        try{
+            var user_id = req.userInfo.user_id;
+            var c_id=req.body.c_id;
+            const data = await pool.query('DELETE from comment WHERE user_id = ? && comment.c_id', [user_id,c_id])
+            return res.json(data[0])
+        }catch (err){
+            return  res.status(500).json(err)
+        }
     }else{
-        res.status(403).send({msg: '권한이 없습니다.'});
+        res.status(403).send({"message" : "권한이 없습니다"});
     }
-});
-module.exports = router;
+})
+module.exports = router
