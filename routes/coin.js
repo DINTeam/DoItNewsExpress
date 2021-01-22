@@ -10,7 +10,7 @@ const pool = require('../utils/pool')
  */
 /**
  * @swagger
- * /coin/:
+ * /coin:
  *   get:
  *     summary: 사용자 코인 조회
  *     tags: [coin]
@@ -26,17 +26,17 @@ const pool = require('../utils/pool')
  *         $ref: '#/components/res/Forbidden'
  *       404:
  *         $ref: '#/components/res/NotFound'
- *       500:
+ *       400:
  *         $ref: '#/components/res/BadRequest'
  */
 router.get('/', async (req,res,next) => {
     if (req.userInfo){
         try{
-            var user_id = req.userInfo.user_id;
-            const data = await pool.query('SELECT * FROM coin WHERE user_id = ?', user_id)
+            let user_id = req.userInfo.user_id;
+            const data = await pool.query('SELECT c_available FROM coin WHERE user_id = ?', user_id)
             return res.json(data[0])
         }catch (err){
-            return  res.status(500).json(err)
+            return  res.status(400).json(err)
         }
     }else{
         res.status(403).send({"message" : "권한이 없습니다"});
@@ -45,7 +45,7 @@ router.get('/', async (req,res,next) => {
 
 /**
  * @swagger
- * /coin/add:
+ * /coin/:user-id:
  *   patch:
  *     summary: 코인 추가
  *     tags: [coin]
@@ -71,14 +71,14 @@ router.get('/', async (req,res,next) => {
  *         $ref: '#/components/res/Forbidden'
  *       404:
  *         $ref: '#/components/res/NotFound'
- *       500:
+ *       400:
  *         $ref: '#/components/res/BadRequest'
  */
-router.patch('/add', async (req,res,next) => {
+router.patch('/:user-id', async (req,res,next) => {
     if (req.userInfo){
         try{
-            var user_id = req.userInfo.user_id;
-            var params = {
+            let user_id = req.userInfo.user_id;
+            let params = {
                 user_id : user_id,
                 coin: req.body.coin,
                 c_private_key: req.body.c_private_key
@@ -86,7 +86,7 @@ router.patch('/add', async (req,res,next) => {
             const data = await pool.query('UPDATE coin SET c_available=?, c_private_key=? WHERE user_id = ?', params)
             return res.json(data[0])
         }catch (err){
-            return  res.status(500).json(err)
+            return  res.status(400).json(err)
         }
     }else{
         res.status(403).send({"message" : "권한이 없습니다"});
@@ -95,7 +95,7 @@ router.patch('/add', async (req,res,next) => {
 
 /**
  * @swagger
- * /coin/delete :
+ * /coin/:user-id :
  *   delete:
  *     summary: 코인 삭제
  *     tags: [coin]
@@ -111,17 +111,17 @@ router.patch('/add', async (req,res,next) => {
  *         $ref: '#/components/res/Forbidden'
  *       404:
  *         $ref: '#/components/res/NotFound'
- *       500:
+ *       400:
  *         $ref: '#/components/res/BadRequest'
  */
-router.delete('/delete', async (req,res,next) => {
+router.delete('/:user-id', async (req,res,next) => {
     if (req.userInfo){
         try{
-            var user_id = req.userInfo.user_id;
-            const data = await pool.query('DELETE from search_history WHERE user_id = ?', user_id)
+            let user_id = req.userInfo.user_id;
+            const data = await pool.query('DELETE from coin WHERE user_id = ?', user_id)
             return res.json(data[0])
         }catch (err){
-            return  res.status(500).json(err)
+            return  res.status(400).json(err)
         }
     }else{
         res.status(403).send({"message" : "권한이 없습니다"});

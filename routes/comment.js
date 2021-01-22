@@ -10,7 +10,7 @@ const pool = require('../utils/pool')
  */
 /**
  * @swagger
- * /comment/:
+ * /comment:
  *   get:
  *     summary: 댓글 조회
  *     tags: [comment]
@@ -26,7 +26,7 @@ const pool = require('../utils/pool')
  *         $ref: '#/components/res/Forbidden'
  *       404:
  *         $ref: '#/components/res/NotFound'
- *       500:
+ *       400:
  *         $ref: '#/components/res/BadRequest'
  */
 router.get('/', async (req,res,next) => {
@@ -35,7 +35,7 @@ router.get('/', async (req,res,next) => {
             const data = await pool.query('SELECT * FROM comment')
             return res.json(data[0])
         }catch (err){
-            return  res.status(500).json(err)
+            return  res.status(400).json(err)
         }
     }else{
         res.status(403).send({"message" : "Token error!"});
@@ -60,17 +60,17 @@ router.get('/', async (req,res,next) => {
  *         $ref: '#/components/res/Forbidden'
  *       404:
  *         $ref: '#/components/res/NotFound'
- *       500:
+ *       400:
  *         $ref: '#/components/res/BadRequest'
  */
 router.get('/:ar_id', async (req,res,next) => {
     if (req.userInfo){
         try{
-            var ar_id = req.body.ar_id;
+            let ar_id = req.params.ar_id;
             const data = await pool.query('SELECT * FROM comment WHERE ar_id = ?', ar_id)
             return res.json(data[0])
         }catch (err){
-            return  res.status(500).json(err)
+            return  res.status(400).json(err)
         }
     }else{
         res.status(403).send({"message" : "권한이 없습니다"});
@@ -79,8 +79,8 @@ router.get('/:ar_id', async (req,res,next) => {
 
 /**
  * @swagger
- * /comment/add :
- *   put:
+ * /comment/:user-id :
+ *   post:
  *     summary: 댓글 달기
  *     tags: [comment]
  *     parameters:
@@ -110,15 +110,15 @@ router.get('/:ar_id', async (req,res,next) => {
  *         $ref: '#/components/res/Forbidden'
  *       404:
  *         $ref: '#/components/res/NotFound'
- *       500:
+ *       400:
  *         $ref: '#/components/res/BadRequest'
  */
-router.put('/add', async (req,res,next) => {
+router.post('/user-id', async (req,res,next) => {
     if (req.userInfo){
         try{
-            var user_id = req.userInfo.user_id;
-            var ar_id = req.body.ar_id;
-            var params = {
+            let user_id = req.userInfo.user_id;
+            let ar_id = req.body.ar_id;
+            let params = {
                 user_id : user_id,
                 ar_id : ar_id,
                 c_comment: req.body.c_comment,
@@ -127,7 +127,7 @@ router.put('/add', async (req,res,next) => {
             const data = await pool.query('INSERT INTO search_history SET ?', params)
             return res.json(data[0])
         }catch (err){
-            return  res.status(500).json(err)
+            return  res.status(400).json(err)
         }
     }else{
         res.status(403).send({"message" : "권한이 없습니다"});
@@ -136,7 +136,7 @@ router.put('/add', async (req,res,next) => {
 
 /**
  * @swagger
- * /comment/delete :
+ * /comment/user-id:
  *   delete:
  *     summary: 댓글 삭제
  *     tags: [comment]
@@ -157,18 +157,18 @@ router.put('/add', async (req,res,next) => {
  *         $ref: '#/components/res/Forbidden'
  *       404:
  *         $ref: '#/components/res/NotFound'
- *       500:
+ *       400:
  *         $ref: '#/components/res/BadRequest'
  */
-router.delete('/delete', async (req,res,next) => {
+router.delete('/:user-id', async (req,res,next) => {
     if (req.userInfo){
         try{
-            var user_id = req.userInfo.user_id;
-            var c_id=req.body.c_id;
+            let user_id = req.userInfo.user_id;
+            let c_id=req.body.c_id;
             const data = await pool.query('DELETE from comment WHERE user_id = ? && comment.c_id', [user_id,c_id])
             return res.json(data[0])
         }catch (err){
-            return  res.status(500).json(err)
+            return  res.status(400).json(err)
         }
     }else{
         res.status(403).send({"message" : "권한이 없습니다"});
