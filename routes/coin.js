@@ -18,7 +18,7 @@ const pool = require('../utils/pool')
  *       - in: userInfo.user_id
  *         name: user_id
  *         type: int
- *         description:사용자 id 정보
+ *         description: 사용자 id 정보
  *     responses:
  *       200:
  *         description: 성공
@@ -46,7 +46,7 @@ router.get('/', async (req,res,next) => {
 /**
  * @swagger
  * /coin/add:
- *   update:
+ *   patch:
  *     summary: 코인 추가
  *     tags: [coin]
  *     parameters:
@@ -74,7 +74,7 @@ router.get('/', async (req,res,next) => {
  *       500:
  *         $ref: '#/components/res/BadRequest'
  */
-router.update('/add', async (req,res,next) => {
+router.patch('/add', async (req,res,next) => {
     if (req.userInfo){
         try{
             var user_id = req.userInfo.user_id;

@@ -12,13 +12,13 @@ const pool = require('../utils/pool')
  * @swagger
  * /mypage/ :
  *   get:
- *     summary:  마이페이지 조회
+ *     summary: 마이페이지 조회
  *     tags: [mypage]
  *     parameters:
  *       - in: userInfo.user_id
  *         name: user_id
  *         type: int
- *         description:사용자 id 정보
+ *         description: 사용자 id 정보
  *     responses:
  *       200:
  *         description: 성공
@@ -45,8 +45,8 @@ router.get('/', async (req,res,next) => {
 
 /**
  * @swagger
- * /mypage/update:
- *   update:
+ * /mypage/patch:
+ *   patch:
  *     summary: 비밀번호 수정
  *     tags: [mypage]
  *     parameters:
@@ -69,7 +69,7 @@ router.get('/', async (req,res,next) => {
  *       500:
  *         $ref: '#/components/res/BadRequest'
  */
-router.update('/update', async (req,res,next) => {
+router.patch('/patch', async (req,res,next) => {
     if (req.userInfo){
         try{
             var user_id = req.userInfo.user_id;

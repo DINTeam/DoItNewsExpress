@@ -8,7 +8,6 @@ const pool = require('../utils/pool')
  *   name: comment
  *   description: 댓글
  */
-
 /**
  * @swagger
  * /comment/:ar_id :
@@ -19,7 +18,7 @@ const pool = require('../utils/pool')
  *       - in: body.ar_id
  *         name: ar_id
  *         type: int
- *         description:기사 id 정보
+ *         description: 기사 id 정보
  *     responses:
  *       200:
  *         description: 성공
@@ -48,7 +47,7 @@ router.get('/:ar_id', async (req,res,next) => {
  * @swagger
  * /comment/add :
  *   put:
- *     summary:댓글 달기
+ *     summary: 댓글 달기
  *     tags: [comment]
  *     parameters:
  *       - in: userInfo.user_id
@@ -59,7 +58,7 @@ router.get('/:ar_id', async (req,res,next) => {
  *       - in: body.ar_id
  *         name: ar_id
  *         type: int
- *         description:기사 id 정보
+ *         description: 기사 id 정보
  *
  *       - in: body.c_comment
  *         name: c_comment
@@ -105,7 +104,7 @@ router.put('/add', async (req,res,next) => {
  * @swagger
  * /comment/delete :
  *   delete:
- *     summary:댓글 삭제
+ *     summary: 댓글 삭제
  *     tags: [comment]
  *     parameters:
  *       - in: userInfo.user_id

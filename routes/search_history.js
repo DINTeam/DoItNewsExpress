@@ -18,7 +18,7 @@ const pool = require('../utils/pool')
  *       - in: userInfo.user_id
  *         name: user_id
  *         type: int
- *         description:사용자 id 정보
+ *         description: 사용자 id 정보
  *     responses:
  *       200:
  *         description: 성공
@@ -63,7 +63,7 @@ router.get('/', async (req,res,next) => {
  *       - in: body.s_time
  *         name: s_time
  *         type: bigint
- *         description:검색 시간
+ *         description: 검색 시간
  *     responses:
  *       200:
  *         description: 성공
@@ -94,8 +94,8 @@ router.put('/add', async (req,res,next) => {
 })
 /**
  * @swagger
- * /search_history/update :
- *   update:
+ * /search_history/patch :
+ *   patch:
  *     summary: 검색 기록 수정
  *     tags: [search_history]
  *     parameters:
@@ -112,7 +112,7 @@ router.put('/add', async (req,res,next) => {
  *       - in: body.s_time
  *         name: s_time
  *         type: bigint
- *         description:검색 시간
+ *         description: 검색 시간
  *     responses:
  *       200:
  *         description: 성공
@@ -123,7 +123,7 @@ router.put('/add', async (req,res,next) => {
  *       500:
  *         $ref: '#/components/res/BadRequest'
  */
-router.update('/update', async (req,res,next) => {
+router.patch('/update', async (req,res,next) => {
     if (req.userInfo){
         try{
             var user_id = req.userInfo.user_id;

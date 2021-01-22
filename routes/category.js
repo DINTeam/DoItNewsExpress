@@ -73,7 +73,7 @@ router.get('/:c_name', async (req,res,next) => {
  * @swagger
  * /category/add :
  *   put:
- *     summary:카테고리 추가
+ *     summary: 카테고리 추가
  *     tags: [category]
  *     parameters:
  *       - in: body.c_name
@@ -108,7 +108,7 @@ router.put('/add', async (req,res,next) => {
  * @swagger
  * /category/delete :
  *   delete:
- *     summary:카테고리 삭제
+ *     summary: 카테고리 삭제
  *     tags: [category]
  *     parameters:
  *       - in: body.c_id
