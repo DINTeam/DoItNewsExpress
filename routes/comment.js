@@ -19,7 +19,7 @@ const pool = require('../utils/pool')
  *       - in: userInfo
  *         name: userInfo
  *         type: string
- *         description:사용자 정보 조회
+ *         description: "사용자 정보 조회"
  *     responses:
  *       200:
  *         description: 성공
@@ -53,7 +53,7 @@ router.get('/', async (req,res,next) => {
  *       - in: body.ar_id
  *         name: ar_id
  *         type: int
- *         description:기사 id 정보
+ *         description: "기사 id 정보"
  *     responses:
  *       200:
  *         description: 성공
@@ -82,7 +82,7 @@ router.get('/:ar_id', async (req,res,next) => {
  * @swagger
  * /comment/:ar_id :
  *   get:
- *     summary:댓글 달기
+ *     summary: "댓글 달기"
  *     tags: [comment]
  *     parameters:
  *       - in: userInfo.user_id
@@ -93,7 +93,7 @@ router.get('/:ar_id', async (req,res,next) => {
  *       - in: body.ar_id
  *         name: ar_id
  *         type: int
- *         description:기사 id 정보
+ *         description: "기사 id 정보"
  *
  *       - in: body.c_comment
  *         name: c_comment
@@ -142,7 +142,7 @@ router.post('/:ar_id', function (req, res, next) {
  * @swagger
  * /comment/:ar_id :
  *   get:
- *     summary:댓글 삭제
+ *     summary: "댓글 삭제"
  *     tags: [comment]
  *     parameters:
  *       - in: userInfo.user_id

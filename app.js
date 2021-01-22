@@ -37,6 +37,7 @@ app.use('/coin',require('./routes/coin'));
 app.use('/comment',require('./routes/comment'));
 app.use('/category',require('./routes/category'));
 app.use('/mypage',require('./routes/mypage'));
+app.use('/auth',require('./routes/auth'));
 
 const swaggerSpec = swaggerJSDoc(swaggerOption);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

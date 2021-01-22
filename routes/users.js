@@ -5,9 +5,9 @@ const crypto = require('crypto');
 
 /**
  * @swagger
- * tags: -"tag-for-user"
+ *   tags:
  *   name: User
- *   description: 사용자 정보 가져오기
+ *   description: "사용자 정보 가져오기"
  */
 /**
  * @swagger
@@ -24,7 +24,7 @@ const crypto = require('crypto');
  *         name : user_pw
  *         type : varchar(45)
  *         description : "사용자 비밀번호 정보"
- *       - in :user_email
+ *       - in : user_email
  *         name : user_email
  *         type : varchar(45)
  *         description : "사용자 이메일 정보"
@@ -43,9 +43,48 @@ const crypto = require('crypto');
  *       500:
  *         $ref: '#/components/res/BadRequest'
  */
-router.get('/register',function(req,res){
-  res.render("/register");
+router.post('/signup',function(req,res) {
+  const {user_email, user_pw, user_pw_check, user_phone} = req.body;
+
+  try {
+    let data = {
+      user_email: user_email,
+      user_pw: user_pw,
+      user_pw_check: user_pw_check,
+      user_phone: user_phone,
+      salt: salt
+    }
+
+    const user = {
+      signup: async (json) => {
+
+        const user_data = await pool.query('INSERT INTO user SET ?', [data]);
+        return user_data;
+      },
+      user_check : async (user_email) => {
+        const user_exist_data = await pool.query('SELECT * FROM users WHERE user_email = ?', user_email);
+        return user_exist_data;
+      }
+    }
+  } catch (err) {
+    return res.status(500).json(err);
+  }
 });
+
+  /*//입력해야할 내용들을 입력했는지 검증
+  if(!user_email || !user_pw || !user_pw_check || !user_phone){
+    return res.status(404).json({msg : "모든 칸에 입력해주세요"});
+  }
+  //비밀번호 양식이나 길이에 대해서 검증해야되나?
+  if(user_pw !== user_pw_check){
+    return res.status(400).json({msg : "비밀번호가 일치하지 않습니다."});
+  }
+
+  const exist_user = await*/
+
+
+
+
 router.post('/register',function (req,res) {
   if(req.userInfo) {
     var params = {
@@ -84,15 +123,6 @@ router.post('/register',function (req,res) {
   }
 });
 
-
-router.get('/login',function(req,res){
-  var session = req.session;
-
-  res.render('/login',{
-    session : session
-  });
-});
-
 router.post('/login',function(req,res){
   if(req.userInfo){
     var user_email = req.body.user_email;
@@ -114,11 +144,5 @@ router.post('/login',function(req,res){
   }
 })
 
-router.get("/logout",function(req,res){
-  req.session.destroy();
-  res.clearCookie('sid');
-
-  res.redirect('/login');
-});
 
 module.exports = router;

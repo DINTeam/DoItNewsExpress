@@ -54,7 +54,7 @@ router.get('/', async (req,res,next) => {
  *       - in: userInfo.user_id
  *         name: user_id
  *         type: int
- *         description:사용자 id 정보
+ *         description: "사용자 id 정보"
  *     responses:
  *       200:
  *         description: 성공

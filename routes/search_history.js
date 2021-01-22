@@ -53,7 +53,7 @@ router.get('/', async (req,res,next) => {
  *       - in: userInfo.user_id
  *         name: user_id
  *         type: int
- *         description:사용자 id 정보
+ *         description: "사용자 id 정보"
  *     responses:
  *       200:
  *         description: 성공
@@ -98,7 +98,7 @@ router.get('/:user_id', async (req,res,next) => {
  *       - in: body.s_time
  *         name: s_time
  *         type: bigint
- *         description:검색 시간
+ *         description: "검색 시간"
  *     responses:
  *       200:
  *         description: 성공
@@ -152,7 +152,7 @@ router.post('/:user_id', function (req, res, next) {
  *       - in: body.s_time
  *         name: s_time
  *         type: bigint
- *         description:검색 시간
+ *         description: "검색 시간"
  *     responses:
  *       200:
  *         description: 성공
