@@ -8,8 +8,6 @@ const pool = require('../utils/pool')
  *   name: comment
  *   description: 댓글
  */
-<<<<<<< HEAD
-
 /**
  * @swagger
  * /comment/:
@@ -44,8 +42,6 @@ router.get('/', async (req,res,next) => {
     }
 })
 
-=======
->>>>>>> 8fb61494caf60e8f17fc3b86e20673f7306365fe
 /**
  * @swagger
  * /comment/:ar_id :
@@ -56,11 +52,7 @@ router.get('/', async (req,res,next) => {
  *       - in: body.ar_id
  *         name: ar_id
  *         type: int
-<<<<<<< HEAD
  *         description: "기사 id 정보"
-=======
- *         description: 기사 id 정보
->>>>>>> 8fb61494caf60e8f17fc3b86e20673f7306365fe
  *     responses:
  *       200:
  *         description: 성공
@@ -87,15 +79,9 @@ router.get('/:ar_id', async (req,res,next) => {
 
 /**
  * @swagger
-<<<<<<< HEAD
- * /comment/:ar_id :
- *   get:
- *     summary: "댓글 달기"
-=======
  * /comment/add :
  *   put:
  *     summary: 댓글 달기
->>>>>>> 8fb61494caf60e8f17fc3b86e20673f7306365fe
  *     tags: [comment]
  *     parameters:
  *       - in: userInfo.user_id
@@ -106,11 +92,7 @@ router.get('/:ar_id', async (req,res,next) => {
  *       - in: body.ar_id
  *         name: ar_id
  *         type: int
-<<<<<<< HEAD
  *         description: "기사 id 정보"
-=======
- *         description: 기사 id 정보
->>>>>>> 8fb61494caf60e8f17fc3b86e20673f7306365fe
  *
  *       - in: body.c_comment
  *         name: c_comment
@@ -154,15 +136,9 @@ router.put('/add', async (req,res,next) => {
 
 /**
  * @swagger
-<<<<<<< HEAD
- * /comment/:ar_id :
- *   get:
- *     summary: "댓글 삭제"
-=======
  * /comment/delete :
  *   delete:
  *     summary: 댓글 삭제
->>>>>>> 8fb61494caf60e8f17fc3b86e20673f7306365fe
  *     tags: [comment]
  *     parameters:
  *       - in: userInfo.user_id

@@ -145,13 +145,10 @@ router.post('/login',function(req,res){
   }
 })
 
-<<<<<<< HEAD
-=======
 router.get("/logout",function(req,res){
   req.session.destroy();
   res.clearCookie('sid');
   res.redirect('/login');
 });
->>>>>>> 8fb61494caf60e8f17fc3b86e20673f7306365fe
 
 module.exports = router;

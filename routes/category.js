@@ -13,18 +13,8 @@ const pool = require('../utils/pool')
  * @swagger
  * /category/:
  *   get:
-<<<<<<< HEAD
- *     summary: 댓글 조회
- *     tags: [comment]
- *     parameters:
- *       - in: userInfo
- *         name: userInfo
- *         type: string
- *         description: "사용자 정보 조회"
-=======
  *     summary: 전체 카테고리 리스트 조회
  *     tags: [category]
->>>>>>> 8fb61494caf60e8f17fc3b86e20673f7306365fe
  *     responses:
  *       200:
  *         description: 성공
@@ -51,17 +41,14 @@ router.get('/', async (req, res, next) => {
  *     summary: 특정 카테고리 리스트 조회
  *     tags: [category]
  *     parameters:
-<<<<<<< HEAD
  *       - in: body.ar_id
  *         name: ar_id
  *         type: int
  *         description: "기사 id 정보"
-=======
  *       - in: body.c_name
  *         name: c_name
  *         type: string
  *         description: 카테고리 이름
->>>>>>> 8fb61494caf60e8f17fc3b86e20673f7306365fe
  *     responses:
  *       200:
  *         description: 성공
@@ -88,25 +75,6 @@ router.get('/:c_name', async (req,res,next) => {
 
 /**
  * @swagger
-<<<<<<< HEAD
- * /comment/:ar_id :
- *   get:
- *     summary: "댓글 달기"
- *     tags: [comment]
- *     parameters:
- *       - in: userInfo.user_id
- *         name: userInfo.user_id
- *         type: int
- *         description: 사용자 id 정보
- *
- *       - in: body.ar_id
- *         name: ar_id
- *         type: int
- *         description: "기사 id 정보"
- *
- *       - in: body.c_comment
- *         name: c_comment
-=======
  * /category/add :
  *   put:
  *     summary: 카테고리 추가
@@ -114,7 +82,6 @@ router.get('/:c_name', async (req,res,next) => {
  *     parameters:
  *       - in: body.c_name
  *         name: c_name
->>>>>>> 8fb61494caf60e8f17fc3b86e20673f7306365fe
  *         type: string
  *         description: 카테고리 이름
  *     responses:
@@ -143,17 +110,10 @@ router.put('/add', async (req,res,next) => {
 
 /**
  * @swagger
-<<<<<<< HEAD
- * /comment/:ar_id :
- *   get:
- *     summary: "댓글 삭제"
- *     tags: [comment]
-=======
  * /category/delete :
  *   delete:
  *     summary: 카테고리 삭제
  *     tags: [category]
->>>>>>> 8fb61494caf60e8f17fc3b86e20673f7306365fe
  *     parameters:
  *       - in: body.c_id
  *         name: c_id
