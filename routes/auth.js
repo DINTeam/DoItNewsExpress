@@ -4,17 +4,6 @@ const pool = require('../utils/pool');
 const crypto = require('crypto-promise');
 const User = require('../model/user');
 
-
-async function hash_pw(user_pw){
-    try{
-        let buf=await crypto.randomBytes(64);
-        let salt = buf.toString();
-        let hash_pw = await crypto.pbkdf2(user_pw.toString(), salt, 1000, 64, 'SHA512'); // 버터 형태로 리턴해주므로 base64 방식으로 문자열 만들어기주
-        let password = hash_pw.toString('hex');
-    }catch(err){
-        throw err;
-    }
-}
 router.post('/signup', async (req, res) => {
     const {user_email, user_pw, user_phone, user_type} = req.body;
     try {
@@ -52,7 +41,7 @@ router.post('/signup', async (req, res) => {
 router.post('/login', async (req, res) => {
     const {user_email, user_pw} = req.body;
     try {
-        let user_check = await pool.query('SELECT * FROM user WHERE user_email = ? ', user_email);
+        let user_check = await pool.query('SELECT * FROM user WHERE user_email = ?', user_email);
         console.log(user_check);
         if (user_check[0][0]) {
             const buf = await crypto.randomBytes(64); // 64비트 salt 값 생성

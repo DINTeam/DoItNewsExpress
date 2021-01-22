@@ -27,7 +27,6 @@ app.use(tokenMiddleWare);
 app.use('/portfolio',require('./routes/portfolio'));
 
 app.use('/', router);
-app.use('/users', require('./routes/users'));
 app.use('/search_history',require('./routes/search_history'));
 app.use('/article',require('./routes/article'));
 app.use('/portfolio',require('./routes/portfolio'));
