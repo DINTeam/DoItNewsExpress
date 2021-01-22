@@ -18,11 +18,7 @@ const pool = require('../utils/pool')
  *       - in: userInfo.user_id
  *         name: user_id
  *         type: int
-<<<<<<< HEAD
  *         description: "사용자 id 정보"
-=======
- *         description: 사용자 id 정보
->>>>>>> 8fb61494caf60e8f17fc3b86e20673f7306365fe
  *     responses:
  *       200:
  *         description: 성공
@@ -67,11 +63,7 @@ router.get('/', async (req,res,next) => {
  *       - in: body.s_time
  *         name: s_time
  *         type: bigint
-<<<<<<< HEAD
  *         description: "검색 시간"
-=======
- *         description: 검색 시간
->>>>>>> 8fb61494caf60e8f17fc3b86e20673f7306365fe
  *     responses:
  *       200:
  *         description: 성공
@@ -120,11 +112,7 @@ router.put('/add', async (req,res,next) => {
  *       - in: body.s_time
  *         name: s_time
  *         type: bigint
-<<<<<<< HEAD
  *         description: "검색 시간"
-=======
- *         description: 검색 시간
->>>>>>> 8fb61494caf60e8f17fc3b86e20673f7306365fe
  *     responses:
  *       200:
  *         description: 성공
