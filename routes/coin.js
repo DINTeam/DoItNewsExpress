@@ -78,12 +78,8 @@ router.patch('/:user-id', async (req,res,next) => {
     if (req.userInfo){
         try{
             let user_id = req.userInfo.user_id;
-            let params = {
-                user_id : user_id,
-                coin: req.body.coin,
-                c_private_key: req.body.c_private_key
-            };
-            const data = await pool.query('UPDATE coin SET c_available=?, c_private_key=? WHERE user_id = ?', params)
+            let {coin, c_private_key} =req.body;
+            const data = await pool.query('UPDATE coin SET c_available=?, c_private_key=? WHERE user_id = ?', [user_id,coin, c_private_key])
             return res.json(data[0])
         }catch (err){
             return  res.status(400).json(err)

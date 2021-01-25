@@ -66,7 +66,7 @@ router.get('/', async (req,res,next) => {
 router.get('/:ar_id', async (req,res,next) => {
     if (req.userInfo){
         try{
-            let ar_id = req.params.ar_id;
+            let {ar_id} = req.params;
             const data = await pool.query('SELECT * FROM comment WHERE ar_id = ?', ar_id)
             return res.json(data[0])
         }catch (err){
@@ -117,14 +117,8 @@ router.post('/user-id', async (req,res,next) => {
     if (req.userInfo){
         try{
             let user_id = req.userInfo.user_id;
-            let ar_id = req.body.ar_id;
-            let params = {
-                user_id : user_id,
-                ar_id : ar_id,
-                c_comment: req.body.c_comment,
-                c_time: req.body.c_time
-            };
-            const data = await pool.query('INSERT INTO search_history SET ?', params)
+            let {ar_id,c_comment,c_time}=req.body;
+            const data = await pool.query('INSERT INTO search_history SET ?', [user_id, ar_id,c_comment,c_time])
             return res.json(data[0])
         }catch (err){
             return  res.status(400).json(err)
@@ -164,7 +158,7 @@ router.delete('/:user-id', async (req,res,next) => {
     if (req.userInfo){
         try{
             let user_id = req.userInfo.user_id;
-            let c_id=req.body.c_id;
+            let {c_id} = req.body;
             const data = await pool.query('DELETE from comment WHERE user_id = ? && comment.c_id', [user_id,c_id])
             return res.json(data[0])
         }catch (err){

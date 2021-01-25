@@ -30,7 +30,7 @@ app.use('/', router);
 app.use('/search-history',require('./routes/search_history'));
 app.use('/article',require('./routes/article'));
 app.use('/portfolio',require('./routes/portfolio'));
-app.use('/scrab',require('./routes/scrab'));
+app.use('/scrap',require('./routes/scrap'));
 app.use('/like',require('./routes/like'));
 app.use('/coin',require('./routes/coin'));
 app.use('/comment',require('./routes/comment'));

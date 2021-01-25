@@ -78,13 +78,8 @@ router.post('/:user-id', async (req,res,next) => {
     if (req.userInfo){
         try{
             let user_id = req.userInfo.user_id;
-
-            let params = {
-                user_id : user_id,
-                s_keyword: req.body.s_keyword,
-                s_time: req.body.s_time
-            };
-            const data = await pool.query('INSERT INTO search_history SET ?', params)
+            let {s_keyword, s_time} = req.body;
+            const data = await pool.query('INSERT INTO search_history SET ?', [user_id,s_keyword,s_time])
             return res.json(data[0])
         }catch (err){
             return  res.status(400).json(err)
@@ -117,7 +112,7 @@ router.post('/:user-id', async (req,res,next) => {
 router.delete('/:s-id', async (req,res,next) => {
     if (req.userInfo){
         try{
-            let s_id = req.params.s_id;
+            let {s_id} = req.params;
             const data = await pool.query('DELETE from search_history WHERE s_id = ?', s_id)
             return res.json(data[0])
         }catch (err){

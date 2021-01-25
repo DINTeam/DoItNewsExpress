@@ -5,7 +5,7 @@ const pool = require('../utils/pool')
 /**
  * @swagger
  * tags:
- *   name: scrab
+ *   name: scrap
  *   description: 스크랩
  */
 
@@ -14,7 +14,7 @@ const pool = require('../utils/pool')
  * /comment/:
  *   get:
  *     summary: 스크랩 조회
- *     tags: [scrab]
+ *     tags: [scrap]
  *     parameters:
  *       - in: user_id
  *         name: user_id
@@ -39,7 +39,7 @@ router.get('/:ar_id',function(req,res){
         try{
             var user_id = req.userInfo.id;
             var ar_id = req.body.ar_id;
-            const data = pool.query('select s_title,s_reporter,s_likes from scrab where user_id=? and ar_id=?',user_id,ar_id);
+            const data = pool.query('select s_title,s_reporter,s_likes from scrap where user_id=? and ar_id=?',user_id,ar_id);
             return res.json(data[0]);
         }catch (err) {
             return res.status(500).json(err);
@@ -54,7 +54,7 @@ router.get('/:ar_id',function(req,res){
  * /comment/:
  *   get:
  *     summary: 스크랩 목록에 저장
- *     tags: [scrab]
+ *     tags: [scrap]
  *     parameters:
  *       - in: user_id
  *         name: user_id
@@ -86,7 +86,7 @@ router.post('/:ar_id',function(req,res){
             s_like : pool.query('select ar_likes from article where ar_id =?', ar_id),
             s_time : new Date()
         };
-        pool.query('insert into scrab values(?,?,?,?,?,?) where user_id=? and ar_id=?', params,user_id,ar_id,function(req,res){
+        pool.query('insert into scrap values(?,?,?,?,?,?) where user_id=? and ar_id=?', params,user_id,ar_id,function(req,res){
             if(err){
                 console.log(err);
                 res.status(500).json(err);

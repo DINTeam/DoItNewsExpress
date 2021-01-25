@@ -73,11 +73,8 @@ router.patch('/:user-id', async (req,res,next) => {
     if (req.userInfo){
         try{
             let user_id = req.userInfo.user_id;
-            let params = {
-                user_id : user_id,
-                user_pw: req.body.user_pw
-            };
-            const data = await pool.query('UPDATE user SET user_pw=? WHERE user_id = ?', params)
+            let {user_pw} = req.body;
+            const data = await pool.query('UPDATE user SET user_pw=? WHERE user_id = ?', [user_id,user_pw])
             return res.json(data[0])
         }catch (err){
             return  res.status(400).json(err)
