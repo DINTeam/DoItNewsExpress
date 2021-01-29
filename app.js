@@ -26,15 +26,15 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/portfolio',require('./routes/portfolio'));
 
 app.use('/', router);
-app.use('/search_history',require('./routes/search_history'));
+app.use('/search-history',require('./routes/search_history'));
 app.use('/article',require('./routes/article'));
 app.use('/portfolio',require('./routes/portfolio'));
-app.use('/scrab',require('./routes/scrab'));
+app.use('/scrap',require('./routes/scrap'));
 app.use('/like',require('./routes/like'));
 app.use('/coin',require('./routes/coin'));
 app.use('/comment',require('./routes/comment'));
 app.use('/category',require('./routes/category'));
-app.use('/mypage',require('./routes/mypage'));
+app.use('/my-page',require('./routes/mypage'));
 app.use('/auth',require('./routes/auth'));
 
 const swaggerSpec = swaggerJSDoc(swaggerOption);
