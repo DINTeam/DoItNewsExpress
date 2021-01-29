@@ -1,27 +1,28 @@
-var express = require('express');
-var router = express.Router();
+let express = require('express');
+let router = express.Router();
 const pool = require('../utils/pool');
-const crypto = require('crypto-promise');
 const User = require('../model/user');
+const encrypt = require('../model/user');
+const jwt = require('../model/jwt');
+const nodemailer = require('nodemailer');
 
+//이메일 중복 체크 제대로 되는지 확인해보기
 router.post('/signup', async (req, res) => {
-    const {user_email, user_pw, user_phone, user_type} = req.body;
+    const {user_email, password, user_phone, user_type} = req.body;
     try {
         //이메일 중복되는지 확인하기
         check_dup = await User.exist_check(user_email);
         if (!check_dup.length === 0) {
-            res.status(500).json(err);
+            res.status(400).send({msg : "존재하는 이메일입니다."});
             return;
         }
 
         //회원가입
-        const buf = await crypto.randomBytes(64); // 64비트 salt 값 생성
-        const salt = buf.toString('hex') // 비트를 문자열로 바꿈
-        const hash_pw = await crypto.pbkdf2(user_pw.toString(), salt, 1000, 64, 'SHA512'); // 버터 형태로 리턴해주므로 base64 방식으로 문자열 만들어기주
-        const password = hash_pw.toString('hex');
-        const json = {user_email, user_pw : password, user_phone, salt,user_type};
+        const user_token = await jwt.create(user_email);
+        console.log(user_token);
+        const {salt, user_pw} = await encrypt.encrypt(password);
+        const json = {user_email, user_pw , user_phone, salt,user_type,user_token};
         const result = await User.signup(json);
-
 
         //ip랑 등록시간 넣어주기
         let params = {
@@ -34,22 +35,22 @@ router.post('/signup', async (req, res) => {
         res.status(200).send({msg: 'success'});
 
     } catch (err) {
-        res.status(500).json(err);
+        res.status(400).json(err);
     }
 })
+//date.now()는 UTC 기준으로 1970년 1월 1일 기준으로 현재까지 경과된 밀리 초를 반환
 
 router.post('/login', async (req, res) => {
-    const {user_email, user_pw} = req.body;
+    const {user_email, password} = req.body;
     try {
         let user_check = await pool.query('SELECT * FROM user WHERE user_email = ?', user_email);
         console.log(user_check);
-        if (user_check[0][0]) {
-            const buf = await crypto.randomBytes(64); // 64비트 salt 값 생성
-            const salt = buf.toString('hex') // 비트를 문자열로 바꿈
-            const hash_pw = await crypto.pbkdf2(user_pw.toString(), salt, 1000, 64, 'SHA512'); // 버터 형태로 리턴해주므로 base64 방식으로 문자열 만들어기주
-            const password = hash_pw.toString('hex');
 
-            if(user_check[0][0].user_pw === password){
+        if (user_check[0][0]) {
+            const hashed = await encrypt.encryptWithSalt(password,user_check[0][0].salt)
+            console.log(hashed);
+            console.log(user_check[0][0].user_pw);
+            if(user_check[0][0].user_pw === hashed){
                 res.json(user_check[0][0]);
             }else{
                 res.status(403).send({msg : "비밀번호가 일치하지 않습니다."});
@@ -59,27 +60,62 @@ router.post('/login', async (req, res) => {
         }
     } catch (err) {
         console.log(err);
-        res.status(500).json(err);
+        res.status(400).json(err);
     }
 })
-//비밀번호 변경하는거 찾아보기
-router.post('/change', async (req, res) => {
-    const {user_email} = req.body;
-    if (req.userInfo) {
-        const buf = await crypto.randomBytes(64); // 64비트 salt 값 생성
-        const salt = buf.toString('hex') // 비트를 문자열로 바꿈
-        const hash_pw = await crypto.pbkdf2(user_pw.toString(), salt, 1000, 64, 'SHA512'); // 버터 형태로 리턴해주므로 base64 방식으로 문자열 만들어기주
-        const password = hash_pw.toString('hex');
 
-        pool.query('UPDATE user SET user_pw =?, salt =? WHERE user_email =?', password, salt, user_email, function (req, res) {
-            if (err) {
-                res.status(500).send({msg: "비밀번호 변경 실패"})
-            } else {
-                res.status(200).send({msg: "비밀번호 변경 성공"});
+//이렇게 하려면 user_email을 바꿀 수 없을 것 같움
+router.post('/change',async (req,res) => {
+    let {user_email,password,user_phone,newpassword} = req.body;
+    try{
+        let user_check = await pool.query('SELECT * FROM user WHERE user_email = ?', user_email);
+        console.log(user_check);
+
+        if(user_check[0][0]){
+            const user_id = user_check[0][0].user_id;
+            const hashed = await encrypt.encryptWithSalt(password,user_check[0][0].salt)
+            if(user_check[0][0].user_pw === hashed){
+                const {salt, user_pw} = await encrypt.encrypt(newpassword);
+                const result = await pool.query('UPDATE user SET user_email=?,user_pw=?,user_phone=?,salt=? WHERE user_id=?', [user_email,user_pw,user_phone,salt,user_id]);
+                res.status(200).send({msg : "회원정보가 정상적으로 변경되었습니다."})
+            }else{
+                res.status(403).send({msg : "비밀번호가 일치하지 않습니다."});
             }
-        });
+        }else{
+            res.status(403).send({msg : "이메일 또는 비밀번호가 일치하지 않습니다."});
+        }
+    }catch(err){
+        console.log(err);
+        res.status(400).json(err);
     }
+});
 
-
+//router.update 이거 확인해보기
+router.post('/forgot',async (req,res)=>{
+    let {user_email} = req.body;
+    try{
+        const token = await pool.query('select user_token from user where user_email =?',user_email);
+        if(token[0][0]){
+            let transporter = nodemailer.createTransport({
+                service : 'gmail',
+                port : 465,
+                secure : true,
+                auth : {
+                    user : ,
+                    pass :
+                }
+            });
+            let emailOptions = {
+                 form : ,
+                 to : user_email,
+                 subject : 'DoItNews 비밀번호 초기화 메일입니다.'
+                 html : `<p>비밀번호 초기화를 위해서는 아래의 URL을 클릭하여 주세요.<p>` +
+                        `<a href = `
+            }
+        }
+    }catch(err) {
+        console.log(err);
+        res.stauts(400).json(err);
+    }
 })
 module.exports = router;
