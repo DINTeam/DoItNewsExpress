@@ -21,8 +21,9 @@ router.post('/signup', async (req, res) => {
         const user_token = await jwt.create(user_email);
         console.log(user_token);
         const {salt, user_pw} = await encrypt.encrypt(password);
-        const json = {user_email, user_pw , user_phone, salt,user_type,user_token};
+        const json = {user_email, user_pw , user_phone, salt,user_type};
         const result = await User.signup(json);
+        const result2 = await pool.query('INSERT INTO access SET ?',user_token);
 
         //ip랑 등록시간 넣어주기
         let params = {
@@ -90,6 +91,7 @@ router.post('/change',async (req,res) => {
     }
 });
 
+/*
 //router.update 이거 확인해보기
 router.post('/forgot',async (req,res)=>{
     let {user_email} = req.body;
@@ -117,5 +119,5 @@ router.post('/forgot',async (req,res)=>{
         console.log(err);
         res.stauts(400).json(err);
     }
-})
+})*/
 module.exports = router;

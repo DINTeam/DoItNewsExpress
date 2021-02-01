@@ -16,10 +16,10 @@ const pool = require('../utils/pool');
  *     summary: 기사 목록
  *     tags: [aticle]
  *     parameters:
- *       - in: userInfo.user_id
- *         name: user_id
- *         type: int
- *         description: 사용자 id 정보
+ *       - in: userInfo
+ *         name: userInfo
+ *         type: string
+ *         description: "사용자 정보 조회"
  *     responses:
  *       200:
  *         description: 성공
@@ -30,18 +30,16 @@ const pool = require('../utils/pool');
  *       500:
  *         $ref: '#/components/res/BadRequest'
  */
-router.get('/',function(req,res) {
+router.get('/', async (req,res) => {
     if(req.userInfo){
-        pool.query('select ar_title,ar_content,ar_views, ar_likes,ar_register_time, ar_thumbnail_id from article', function(req,res){
-            if (err) {
-                console.log(err);
-                res.status(500).json(err);
-            } else {
-                res.status(200).json({msg: 'success'});
-            }
-        });
+        try{
+            const data = await pool.query('select ar_title,ar_content,ar_views, ar_likes,ar_register_time, ar_thumbnail_id from article')
+            return res.json(data[0]);
+        }catch (err) {
+            return res.status(400).json(err);
+        }
     }else{
-        res.status(403).send({msg : '권한이 없습니다.'});
+        res.status(403).send({msg : "Token error!"});
     }
 });
 
@@ -70,7 +68,7 @@ router.get('/',function(req,res) {
 router.get('/detail/:ar_id',function (req,res) {
     if(req.userInfo){
         try{
-            var ar_id = req.body.ar_id;
+            let ar_id = req.body.ar_id;
             pool.beginTransaction(function(err){
                 pool.query('update article set ar_views = ar_views + 1 where ar_id = ?',ar_id,function(err){
                     if(err){
@@ -127,29 +125,23 @@ router.get('/detail/:ar_id',function (req,res) {
  *       500:
  *         $ref: '#/components/res/BadRequest'
  */
-router.post('/create',function(req,res) {
+router.post('/create',async (req,res) => {
     if (req.userInfo) {
-        var user_id = req.userInfo.user_id;
-        var user_type = pool.query('select user_type from user_check where user_id = ?',user_id);
-        //기자로 가입한 사람만 작성 가능
-        if(user_type === 1){
-            var params = {
-                ar_id : req.body.ar_id,
-                ar_title : req.body.ar_title,
-                ar_subtitle : req.body.ar_subtitle,
-                ar_content : req.body.ar_content,
-                ar_reporter : req.body.ar_reporter
-            };
-
-            pool.query('INSERT INTO article(ar_id,ar_title,ar_subtitle,ar_content,ar_reporter) values (?,?,?,?,?) where user_id = ?', params,user_id, function (err) {
-                if (err) {
-                    console.log(err);
-                    res.status(500).json(err);
-                } else {
-                    res.status(200).json({msg: 'success'});
-                }
-            });
+        try{
+            let user_id = req.userInfo.user_id;
+            let user_type = await pool.query('select user_type from user where user_id = ?',user_id);
+            //기자로 가입한 사람만 작성 가능
+            if(user_type === 1) {
+                let {ar_id, ar_title, ar_subtitle, ar_content, ar_reporter} = req.body;
+                const data = await pool.query('INSERT INTO article(ar_id,ar_title,ar_subtitle,ar_content,ar_reporter) SET ?', [ar_id, ar_title, ar_subtitle, ar_content, ar_reporter])
+                return res.json(data[0]);
+            }else {
+                res.status(403).send({msg: '권한이 없습니다.'});
+            }
+        }catch (err){
+            return res.status(400).json(err);
         }
+
     } else {
         res.status(403).send({msg: '권한이 없습니다.'});
     }
@@ -180,26 +172,23 @@ router.post('/create',function(req,res) {
  *       500:
  *         $ref: '#/components/res/BadRequest'
  */
-router.post("/update/:ar_id",function(req,res){
+router.patch("/:ar_id",async (req,res) => {
     if (req.userInfo) {
-        var user_id = req.userInfo.user_id;
-        var ar_id = req.body.ar_id;
-        var user_type = pool.query('select user_type from user_check where user_id = ?',user_id);
-        if(user_type === 1) {
-            var params = {
-                ar_title : req.body.ar_title,
-                ar_subtitle : req.body.ar_subtitle,
-                ar_content : req.body.ar_content,
-                ar_reporter : req.body.ar_reporter
-            };
-            pool.query('UPDATE article SET ar_title=?,ar_subtitle=?,ar_content=?,ar_reporter=? WHERE ar_id=? AND user_id=?',params,ar_id,user_id,function(req,res){
-                if(err){
-                    console.log(err);
-                    res.status(500).json(err);
-                } else{
-                    res.status(200).send({msg: 'success'});
-                }
-            });
+        try{
+            let user_id = req.userInfo.user_id;
+            let {ar_id} = req.body;
+            let user_type = await pool.query('select user_type from user where user_id = ?',user_id);
+
+            //기자인 사람만 수정 가능
+            if(user_type === 1) {
+                let {ar_title, ar_subtitle, ar_content} = req.body;
+                const data = await pool.query('UPDATE article SET ar_title=?,ar_subtitle=?,ar_content=? WHERE ar_id=?', [ar_title, ar_subtitle, ar_content,ar_id]);
+                return res.json(data[0]);
+            }else {
+                res.status(403).send({msg: '권한이 없습니다.'});
+            }
+        }catch(err){
+            res.status(400).json(err);
         }
     }else{
         res.status(403).send({msg : '권한이 없습니다.'});
@@ -210,7 +199,7 @@ router.post("/update/:ar_id",function(req,res){
  * @swagger
  * /comment/:
  *   get:
- *     summary: 기사삭제하기
+ *     summary: 기사 삭제하기
  *     tags: [article]
  *     parameters:
  *       - in: user_id
@@ -231,72 +220,25 @@ router.post("/update/:ar_id",function(req,res){
  *       500:
  *         $ref: '#/components/res/BadRequest'
  */
-router.post('/delete/:ar_id', function(req,res){
+router.delete('/:ar_id', async (req,res) => {
     if(req.userInfo){
-        var user_id = req.userInfo.user_id;
-        var ar_id = req.body.ar_id;
-        var user_type = pool.query('select user_type from user_check where user_id = ?',user_id);
+        try{
+            let user_id = req.userInfo.user_id;
+            let ar_id = req.body.ar_id;
+            let user_type = await pool.query('select user_type from user where user_id = ?',user_id);
 
-        if(user_type === 1) {
-            pool.query('DELETE FROM article WHERE user_id =? AND ar_id =? ',user_id,ar_id,function(req,res){
-                if(err){
-                    console.log(err);
-                    res.status(500).json(err);
-                }else{
-                    res.status(200).send({msg : 'success'});
-                }
-            });
+            if(user_type ===1){
+                const data= await pool.query('DELETE FROM article WHERE user_id =? AND ar_id =?',{user_id,ar_id})
+                return res.json(data[0]);
+            }
+        }catch (err) {
+            res.status(403).send({msg : "권한이 없습니다."});
         }
+
+
     }else{
         res.status(403).send({msg : '권한이 없습니다.'});
     }
 });
 
 module.exports = router;
-/* 페이징
-router.get('/list/:page', function(req,res){
-    var page_size = 10;
-    var page_list_size =10;
-    var no ="";
-    var total_page_count =0;
-
-    pool.query('select count(*) as cnt from portfolio',function(err,data){
-        if(err){
-            console.log(err + "메인 화면 mysql 조회 실패");
-            return;
-        }
-        total_page_count=data[0].cnt;
-        var cur_page = req.params.page;
-
-        console.log("현재 페이지 : " + cur_page, "전체 페이지 : "+ total_page_count);
-
-        if(total_page_count<0){
-            total_page_count =0;
-        }
-
-        var total_page = Math.ceil(total_page_count / page_size);
-        var total_set = Math.ceil(total_page / page_list_size);
-        var cur_set = Math.ceil(cur_page / page_list_size);
-        var start_page = ((cur_set-1)*10)+1;
-        var end_page = (start_page + page_list_size)-1;
-
-        if(cur_page < 0){
-            no=0;
-        }else{
-            no=(cur_page-1)*10;
-        }
-
-        var result2 = {
-            "cur_page" : cur_page,
-            "page_list_size" : page_list_size,
-            "page_size" : page_size,
-            "total_page" : total_page,
-            "total_set" : total_set,
-            "cur_set" : cur_set,
-            "start_page" : start_page,
-            "end_page" : end_page
-        };
-
-
-    })
-})*/ // 나중에 다시

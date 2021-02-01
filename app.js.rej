@@ -1,0 +1,9 @@
+diff a/app.js b/app.js	(rejected hunks)
+@@ -12,7 +12,6 @@
+ const session = require("express-session");
+ 
+ const app = asyncify(express());
+-let tokenMiddleWare = require('./utils/token');
+ 
+ // view engine setup
+ app.set('views', path.join(__dirname, 'views'));
