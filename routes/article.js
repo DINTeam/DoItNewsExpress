@@ -14,8 +14,14 @@ const pool = require('../utils/pool');
  * /article:
  *   get:
  *     summary: 기사 조회
- *     tags: [aticle]
+ *     tags: [article]
  *     parameters:
+ *       - in: header
+ *         name: x-access-token
+ *         schema:
+ *         type: string
+ *         format: uuid
+ *         required: true
  *       - in: userInfo.user_id
  *         name: user_id
  *         type: int
@@ -30,16 +36,16 @@ const pool = require('../utils/pool');
  *       500:
  *         $ref: '#/components/res/BadRequest'
  */
-router.get('/', async (req,res) => {
-    if(req.userInfo){
-        try{
+router.get('/', async (req, res) => {
+    if (req.userInfo) {
+        try {
             const data = await pool.query('select ar_title,ar_content,ar_views, ar_likes,ar_register_time, ar_thumbnail_id from article');
             return res.json(data[0]);
-        }catch (err) {
+        } catch (err) {
             return res.status(400).json(err);
         }
-    }else{
-        res.status(403).send({msg : "Token error!"});
+    } else {
+        res.status(403).send({msg: "Token error!"});
     }
 });
 
@@ -65,19 +71,19 @@ router.get('/', async (req,res) => {
  *         $ref: '#/components/res/BadRequest'
  */
 
-router.get('/detail/:ar_id',function (req,res) {
-    if(req.userInfo){
-        try{
+router.get('/detail/:ar_id', function (req, res) {
+    if (req.userInfo) {
+        try {
             let ar_id = req.body.ar_id;
-            pool.beginTransaction(function(err){
-                pool.query('update article set ar_views = ar_views + 1 where ar_id = ?',ar_id,function(err){
-                    if(err){
+            pool.beginTransaction(function (err) {
+                pool.query('update article set ar_views = ar_views + 1 where ar_id = ?', ar_id, function (err) {
+                    if (err) {
                         console.log(err);
                         pool.rollback(function () {
                             console.log('rollback error1');
                         })
                     }
-                    pool.query('select * from article where ar_id =?', ar_id ,function(err,rows) {
+                    pool.query('select * from article where ar_id =?', ar_id, function (err, rows) {
                         if (err) {
                             console.log(err);
                             pool.rollback(function () {
@@ -93,11 +99,11 @@ router.get('/detail/:ar_id',function (req,res) {
                     })
                 });
             })
-        }catch(err){
+        } catch (err) {
             return res.status(500).json(err);
         }
-    }else{
-        res.status(403).send({"message" : "권한이 없습니다."});
+    } else {
+        res.status(403).send({"message": "권한이 없습니다."});
     }
 });
 /**
@@ -126,20 +132,20 @@ router.get('/detail/:ar_id',function (req,res) {
  *       500:
  *         $ref: '#/components/res/BadRequest'
  */
-router.post('/:user_id',async (req,res) => {
+router.post('/:user_id', async (req, res) => {
     if (req.userInfo) {
-        try{
+        try {
             let user_id = req.userInfo.user_id;
-            let user_type = await pool.query('select user_type from user where user_id = ?',user_id);
+            let user_type = await pool.query('select user_type from user where user_id = ?', user_id);
             //기자로 가입한 사람만 작성 가능
-            if(user_type === 1) {
+            if (user_type === 1) {
                 let {ar_id, ar_title, ar_subtitle, ar_content, ar_reporter} = req.body;
                 const data = await pool.query('INSERT INTO article(ar_id,ar_title,ar_subtitle,ar_content,ar_reporter) SET ?', [ar_id, ar_title, ar_subtitle, ar_content, ar_reporter])
                 return res.json(data[0]);
-            }else {
+            } else {
                 res.status(403).send({msg: '기자 회원만 작성 가능합니다. '});
             }
-        }catch (err){
+        } catch (err) {
             return res.status(400).json(err);
         }
 
@@ -173,26 +179,26 @@ router.post('/:user_id',async (req,res) => {
  *       500:
  *         $ref: '#/components/res/BadRequest'
  */
-router.patch("/:ar_id",async (req,res) => {
+router.patch("/:ar_id", async (req, res) => {
     if (req.userInfo) {
-        try{
+        try {
             let user_id = req.userInfo.user_id;
             let {ar_id} = req.body;
-            let user_type = await pool.query('select user_type from user where user_id = ?',user_id);
+            let user_type = await pool.query('select user_type from user where user_id = ?', user_id);
 
             //기자인 사람만 수정 가능
-            if(user_type === 1) {
+            if (user_type === 1) {
                 let {ar_title, ar_subtitle, ar_content} = req.body;
-                const data = await pool.query('UPDATE article SET ar_title=?,ar_subtitle=?,ar_content=? WHERE ar_id=?', [ar_title, ar_subtitle, ar_content,ar_id]);
+                const data = await pool.query('UPDATE article SET ar_title=?,ar_subtitle=?,ar_content=? WHERE ar_id=?', [ar_title, ar_subtitle, ar_content, ar_id]);
                 return res.json(data[0]);
-            }else {
+            } else {
                 res.status(403).send({msg: '권한이 없습니다.'});
             }
-        }catch(err){
+        } catch (err) {
             res.status(400).json(err);
         }
-    }else{
-        res.status(403).send({msg : '권한이 없습니다.'});
+    } else {
+        res.status(403).send({msg: '권한이 없습니다.'});
     }
 });
 
@@ -221,24 +227,24 @@ router.patch("/:ar_id",async (req,res) => {
  *       500:
  *         $ref: '#/components/res/BadRequest'
  */
-router.delete('/:ar_id', async (req,res) => {
-    if(req.userInfo){
-        try{
+router.delete('/:ar_id', async (req, res) => {
+    if (req.userInfo) {
+        try {
             let user_id = req.userInfo.user_id;
             let ar_id = req.body;
-            let user_type = await pool.query('select user_type from user where user_id = ?',user_id);
+            let user_type = await pool.query('select user_type from user where user_id = ?', user_id);
 
-            if(user_type ===1){
-                const data= await pool.query('DELETE FROM article WHERE user_id =? AND ar_id =?',{user_id,ar_id})
+            if (user_type === 1) {
+                const data = await pool.query('DELETE FROM article WHERE user_id =? AND ar_id =?', {user_id, ar_id})
                 return res.json(data[0]);
             }
-        }catch (err) {
-            res.status(403).send({msg : "권한이 없습니다."});
+        } catch (err) {
+            res.status(403).send({msg: "권한이 없습니다."});
         }
 
 
-    }else{
-        res.status(403).send({msg : '권한이 없습니다.'});
+    } else {
+        res.status(403).send({msg: '권한이 없습니다.'});
     }
 });
 

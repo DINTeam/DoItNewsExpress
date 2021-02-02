@@ -14,7 +14,7 @@ const nodemailer = require('nodemailer');
  */
 /**
  * @swagger
- * /signup :
+ * /auth/signup :
  *   post:
  *     summary: 회원가입
  *     tags: [signup]
