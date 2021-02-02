@@ -11,16 +11,12 @@ const pool = require('../utils/pool')
 
 /**
  * @swagger
- * /comment/:
- *   get:
+ * /:ar_id/like :
+ *   post:
  *     summary: 좋아요
- *     tags: [comment]
+ *     tags: [like]
  *     parameters:
- *       - in: user_id
- *         name: user_id
- *         type: int
- *         description: 사용자 id 조회
- *       - in: ar_id
+ *       - in: body.ar_id
  *         name : ar_id
  *         type: int
  *         description: 기사 id 조회
@@ -39,7 +35,6 @@ const pool = require('../utils/pool')
 router.post('/:ar_id/like', async(req,res) =>{
     if(req.userInfo){
         try{
-            var user_id = req.userInfo.user_id;
             var {ar_id} = req.body;
             pool.beginTransaction(async(err) => {
                 pool.query('select like_check from is_like where ar_id =?',ar_id,async (req,res) => {

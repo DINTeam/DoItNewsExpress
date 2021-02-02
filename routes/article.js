@@ -11,15 +11,15 @@ const pool = require('../utils/pool');
 
 /**
  * @swagger
- * /comment/:
+ * /article:
  *   get:
- *     summary: 기사 목록
+ *     summary: 기사 조회
  *     tags: [aticle]
  *     parameters:
- *       - in: userInfo
- *         name: userInfo
- *         type: string
- *         description: "사용자 정보 조회"
+ *       - in: userInfo.user_id
+ *         name: user_id
+ *         type: int
+ *         description: "사용자 id 정보"
  *     responses:
  *       200:
  *         description: 성공
@@ -33,7 +33,7 @@ const pool = require('../utils/pool');
 router.get('/', async (req,res) => {
     if(req.userInfo){
         try{
-            const data = await pool.query('select ar_title,ar_content,ar_views, ar_likes,ar_register_time, ar_thumbnail_id from article')
+            const data = await pool.query('select ar_title,ar_content,ar_views, ar_likes,ar_register_time, ar_thumbnail_id from article');
             return res.json(data[0]);
         }catch (err) {
             return res.status(400).json(err);
@@ -45,12 +45,12 @@ router.get('/', async (req,res) => {
 
 /**
  * @swagger
- * /comment/:
+ * /article/detail/:ar_id :
  *   get:
  *     summary: 기사 상세보기
  *     tags: [article]
  *     parameters:
- *       - in: ar_id
+ *       - in: body.ar_id
  *         name: ar_id
  *         type: int
  *         description: ar_id 정보
@@ -102,15 +102,16 @@ router.get('/detail/:ar_id',function (req,res) {
 });
 /**
  * @swagger
- * /comment/:
- *   get:
+ * /article/:user_id :
+ *   post:
  *     summary: 기사 작성하기
  *     tags: [article]
  *     parameters:
- *       - in: user_id
- *         name: user_id
+ *       - in: userInfo.user_id
+ *         name: userInfo.user_id
  *         type: int
  *         description: user_id 정보
+ *
  *       - in: user_type
  *         name: user_type
  *         type: tinyint
@@ -125,7 +126,7 @@ router.get('/detail/:ar_id',function (req,res) {
  *       500:
  *         $ref: '#/components/res/BadRequest'
  */
-router.post('/create',async (req,res) => {
+router.post('/:user_id',async (req,res) => {
     if (req.userInfo) {
         try{
             let user_id = req.userInfo.user_id;
@@ -136,7 +137,7 @@ router.post('/create',async (req,res) => {
                 const data = await pool.query('INSERT INTO article(ar_id,ar_title,ar_subtitle,ar_content,ar_reporter) SET ?', [ar_id, ar_title, ar_subtitle, ar_content, ar_reporter])
                 return res.json(data[0]);
             }else {
-                res.status(403).send({msg: '권한이 없습니다.'});
+                res.status(403).send({msg: '기자 회원만 작성 가능합니다. '});
             }
         }catch (err){
             return res.status(400).json(err);
@@ -149,16 +150,16 @@ router.post('/create',async (req,res) => {
 
 /**
  * @swagger
- * /comment/:
+ * /article/:ar_id :
  *   get:
  *     summary: 기사 수정하기
  *     tags: [article]
  *     parameters:
- *       - in: user_id
- *         name: user_id
+ *       - in: userInfo.user_id
+ *         name: userInfo.user_id
  *         type: int
  *         description: 사용자 id 정보
- *       - in: ar_id
+ *       - in: body.ar_id
  *         name: ar_id
  *         type: int
  *         description: ar_id 정보
@@ -197,17 +198,17 @@ router.patch("/:ar_id",async (req,res) => {
 
 /**
  * @swagger
- * /comment/:
- *   get:
+ * /article/:ar_id :
+ *   delete:
  *     summary: 기사 삭제하기
  *     tags: [article]
  *     parameters:
- *       - in: user_id
- *         name: user_id
+ *       - in: userInfo.user_id
+ *         name: userInfo.user_id
  *         type: int
  *         description: 사용자 id 정보
- *       - in: ar_id
- *         name: ar_id
+ *       - in: body.ar_id
+ *         name: body.ar_id
  *         type: int
  *         description : ar_id 정보
  *     responses:
@@ -224,7 +225,7 @@ router.delete('/:ar_id', async (req,res) => {
     if(req.userInfo){
         try{
             let user_id = req.userInfo.user_id;
-            let ar_id = req.body.ar_id;
+            let ar_id = req.body;
             let user_type = await pool.query('select user_type from user where user_id = ?',user_id);
 
             if(user_type ===1){

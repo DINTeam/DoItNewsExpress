@@ -6,6 +6,46 @@ const encrypt = require('../model/user');
 const jwt = require('../model/jwt');
 const nodemailer = require('nodemailer');
 
+/**
+ * @swagger
+ * tags:
+ *   name: auth
+ *   description: 회원가입 및 로그인
+ */
+/**
+ * @swagger
+ * /signup :
+ *   post:
+ *     summary: 회원가입
+ *     tags: [signup]
+ *     parameters:
+ *       - in: body.user_email
+ *         name: user_email
+ *         type: varchar(45)
+ *         description: "사용자 이메일 정보"
+ *       - in: body.password
+ *         name: password
+ *         type: varchar(200)
+ *         description: "사용자 비밀번호 정보"
+ *       - in: body.user_phone
+ *         name: user_phone
+ *         type: varchar(11)
+ *         description: "사용자 전화번호 정보"
+ *       - in: body.user_type
+ *         name: user_type
+ *         type: int
+ *         description: "사용자 유형 정보"
+
+ *     responses:
+ *       200:
+ *         description: 성공
+ *       403:
+ *         $ref: '#/components/res/Forbidden'
+ *       404:
+ *         $ref: '#/components/res/NotFound'
+ *       400:
+ *         $ref: '#/components/res/BadRequest'
+ */
 //이메일 중복 체크 제대로 되는지 확인해보기
 router.post('/signup', async (req, res) => {
     const {user_email, password, user_phone, user_type} = req.body;
@@ -39,8 +79,32 @@ router.post('/signup', async (req, res) => {
         res.status(400).json(err);
     }
 })
-//date.now()는 UTC 기준으로 1970년 1월 1일 기준으로 현재까지 경과된 밀리 초를 반환
 
+/**
+ * @swagger
+ * /login :
+ *   post:
+ *     summary: 로그인
+ *     tags: [login]
+ *     parameters:
+ *       - in: body.user_email
+ *         name: user_email
+ *         type: varchar(45)
+ *         description: "사용자 이메일 정보"
+ *       - in: body.password
+ *         name: password
+ *         type: varchar(200)
+
+ *     responses:
+ *       200:
+ *         description: 성공
+ *       403:
+ *         $ref: '#/components/res/Forbidden'
+ *       404:
+ *         $ref: '#/components/res/NotFound'
+ *       400:
+ *         $ref: '#/components/res/BadRequest'
+ */
 router.post('/login', async (req, res) => {
     const {user_email, password} = req.body;
     try {
@@ -64,8 +128,40 @@ router.post('/login', async (req, res) => {
         res.status(400).json(err);
     }
 })
+/**
+ * @swagger
+ * /change :
+ *   post:
+ *     summary: 회원정보 변경
+ *     tags: [signup]
+ *     parameters:
+ *       - in: body.user_email
+ *         name: user_email
+ *         type: varchar(45)
+ *         description: "사용자 이메일 정보"
+ *       - in: body.password
+ *         name: password
+ *         type: varchar(200)
+ *         description: "사용자 비밀번호 정보"
+ *       - in: body.user_phone
+ *         name: user_phone
+ *         type: varchar(11)
+ *         description: "사용자 전화번호 정보"
+ *       - in: body.newpassword
+ *         name: newpassword
+ *         type: varchar(200)
+ *         description: "사용자 새로운 비밀번호 정보 "
 
-//이렇게 하려면 user_email을 바꿀 수 없을 것 같움
+ *     responses:
+ *       200:
+ *         description: 성공
+ *       403:
+ *         $ref: '#/components/res/Forbidden'
+ *       404:
+ *         $ref: '#/components/res/NotFound'
+ *       400:
+ *         $ref: '#/components/res/BadRequest'
+ */
 router.post('/change',async (req,res) => {
     let {user_email,password,user_phone,newpassword} = req.body;
     try{
@@ -77,7 +173,7 @@ router.post('/change',async (req,res) => {
             const hashed = await encrypt.encryptWithSalt(password,user_check[0][0].salt)
             if(user_check[0][0].user_pw === hashed){
                 const {salt, user_pw} = await encrypt.encrypt(newpassword);
-                const result = await pool.query('UPDATE user SET user_email=?,user_pw=?,user_phone=?,salt=? WHERE user_id=?', [user_email,user_pw,user_phone,salt,user_id]);
+                const result = await pool.query('UPDATE user SET user_pw=?,user_phone=?,salt=? WHERE user_id=?', [user_email,user_pw,user_phone,salt,user_id]);
                 res.status(200).send({msg : "회원정보가 정상적으로 변경되었습니다."})
             }else{
                 res.status(403).send({msg : "비밀번호가 일치하지 않습니다."});
