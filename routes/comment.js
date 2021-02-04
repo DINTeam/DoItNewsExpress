@@ -30,16 +30,13 @@ const pool = require('../utils/pool')
  *         $ref: '#/components/res/BadRequest'
  */
 router.get('/', async (req,res,next) => {
-    if (req.userInfo){
+
         try{
             const data = await pool.query('SELECT * FROM comment')
             return res.json(data[0])
         }catch (err){
             return  res.status(400).json(err)
         }
-    }else{
-        res.status(403).send({"message" : "Token error!"});
-    }
 })
 
 /**
@@ -64,7 +61,7 @@ router.get('/', async (req,res,next) => {
  *         $ref: '#/components/res/BadRequest'
  */
 router.get('/:ar_id', async (req,res,next) => {
-    if (req.userInfo){
+
         try{
             let {ar_id} = req.params;
             const data = await pool.query('SELECT * FROM comment WHERE ar_id = ?', ar_id)
@@ -72,9 +69,6 @@ router.get('/:ar_id', async (req,res,next) => {
         }catch (err){
             return  res.status(400).json(err)
         }
-    }else{
-        res.status(403).send({"message" : "권한이 없습니다"});
-    }
 })
 
 /**
@@ -84,6 +78,13 @@ router.get('/:ar_id', async (req,res,next) => {
  *     summary: 댓글 달기
  *     tags: [comment]
  *     parameters:
+ *       - in: header
+ *         name: x-access-token
+ *         schema:
+ *         type: string
+ *         format: uuid
+ *         required: true
+ *
  *       - in: userInfo.user_id
  *         name: userInfo.user_id
  *         type: int
@@ -135,6 +136,13 @@ router.post('/user-id', async (req,res,next) => {
  *     summary: 댓글 삭제
  *     tags: [comment]
  *     parameters:
+ *       - in: header
+ *         name: x-access-token
+ *         schema:
+ *         type: string
+ *         format: uuid
+ *         required: true
+ *
  *       - in: userInfo.user_id
  *         name: userInfo.user_id
  *         type: int

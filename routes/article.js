@@ -39,7 +39,7 @@ const pool = require('../utils/pool');
 router.get('/', async (req, res) => {
     if (req.userInfo) {
         try {
-            const data = await pool.query('select ar_title,ar_content,ar_views, ar_likes,ar_register_time, ar_thumbnail_id from article');
+            const data = await pool.query('select ar_title,ar_content,ar_views, ar_likes,ar_regist_time, ar_thumbnail_id from article');
             return res.json(data[0]);
         } catch (err) {
             return res.status(400).json(err);

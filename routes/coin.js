@@ -15,6 +15,13 @@ const pool = require('../utils/pool')
  *     summary: 사용자 코인 조회
  *     tags: [coin]
  *     parameters:
+ *       - in: header
+ *         name: x-access-token
+ *         schema:
+ *         type: string
+ *         format: uuid
+ *         required: true
+ *
  *       - in: userInfo.user_id
  *         name: user_id
  *         type: int
@@ -50,10 +57,12 @@ router.get('/', async (req,res,next) => {
  *     summary: 코인 추가
  *     tags: [coin]
  *     parameters:
- *       - in: userInfo.user_id
- *         name: userInfo.user_id
- *         type: int
- *         description: 사용자 id 정보
+ *       - in: header
+ *         name: x-access-token
+ *         schema:
+ *         type: string
+ *         format: uuid
+ *         required: true
  *
  *       - in: body.coin
  *         name: coin
@@ -78,6 +87,7 @@ router.patch('/:user-id', async (req,res,next) => {
     if (req.userInfo){
         try{
             let user_id = req.userInfo.user_id;
+            console.log(user_id)
             let {coin, c_private_key} =req.body;
             const data = await pool.query('UPDATE coin SET c_available=?, c_private_key=? WHERE user_id = ?', [user_id,coin, c_private_key])
             return res.json(data[0])
@@ -96,6 +106,13 @@ router.patch('/:user-id', async (req,res,next) => {
  *     summary: 코인 삭제
  *     tags: [coin]
  *     parameters:
+ *       - in: header
+ *         name: x-access-token
+ *         schema:
+ *         type: string
+ *         format: uuid
+ *         required: true
+ *
  *       - in: userInfo.user_id
  *         name: userInfo.user_id
  *         type: int

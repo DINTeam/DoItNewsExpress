@@ -15,6 +15,13 @@ const pool = require('../utils/pool')
  *     summary: 검색기록 조회
  *     tags: [search-history]
  *     parameters:
+ *       - in: header
+ *         name: x-access-token
+ *         schema:
+ *         type: string
+ *         format: uuid
+ *         required: true
+ *
  *       - in: userInfo.user_id
  *         name: user_id
  *         type: int
@@ -45,40 +52,48 @@ router.get('/', async (req,res,next) => {
 
 /**
  * @swagger
- * /search-history/:user-id :
- *   post:
- *     summary: 검색 기록 추가
- *     tags: [search-history]
- *     parameters:
- *       - in: userInfo.user_id
- *         name: userInfo.user_id
- *         type: int
- *         description: 사용자 id 정보
+ * paths:
+ *   /search-history/:user-id :
+ *     post:
+ *       summary: 검색 기록 추가
+ *       tags: [search-history]
+ *       parameters:
+ *         - in: header
+ *           name: x-access-token
+ *           schema:
+ *           type: string
+ *           format: uuid
+ *           required: true
  *
- *       - in: body.s_keyword
- *         name: s_keyword
- *         type: string
- *         description: 검색 키워드
- *
- *       - in: body.s_time
- *         name: s_time
- *         type: bigint
- *         description: "검색 시간"
- *     responses:
- *       200:
- *         description: 성공
- *       403:
- *         $ref: '#/components/res/Forbidden'
- *       404:
- *         $ref: '#/components/res/NotFound'
- *       400:
- *         $ref: '#/components/res/BadRequest'
+ *         - in: body
+ *            name: search-history
+ *            description: add history
+ *            schema:
+ *              type: object
+ *              required:
+ *                - s_keyword
+ *                - s_time
+ *              properties:
+ *                s_keyword:
+ *                  type: string
+ *                s_time:
+ *                  type: bigint
+ *       responses:
+ *         200:
+ *           description: 성공
+ *         403:
+ *           $ref: '#/components/res/Forbidden'
+ *         404:
+ *           $ref: '#/components/res/NotFound'
+ *         400:
+ *           $ref: '#/components/res/BadRequest'
  */
 router.post('/:user-id', async (req,res,next) => {
     if (req.userInfo){
         try{
             let user_id = req.userInfo.user_id;
             let {s_keyword, s_time} = req.body;
+            console.log(s_time+"and"+s_keyword)
             const data = await pool.query('INSERT INTO search_history SET ?', [user_id,s_keyword,s_time])
             return res.json(data[0])
         }catch (err){
@@ -92,9 +107,16 @@ router.post('/:user-id', async (req,res,next) => {
  * @swagger
  * /search-history/:s-id :
  *    delete:
- *     summary: 검색 기록 삭제
+ *     summary: 개별 검색 기록 삭제
  *     tags: [search-history]
  *     parameters:
+ *       - in: header
+ *         name: x-access-token
+ *         schema:
+ *         type: string
+ *         format: uuid
+ *         required: true
+ *
  *       - in: userInfo.user_id
  *         name: userInfo.user_id
  *         type: int
@@ -129,6 +151,13 @@ router.delete('/:s-id', async (req,res,next) => {
  *     summary: 전체 검색 기록 삭제
  *     tags: [search-history]
  *     parameters:
+ *       - in: header
+ *         name: x-access-token
+ *         schema:
+ *         type: string
+ *         format: uuid
+ *         required: true
+ *
  *       - in: userInfo.user_id
  *         name: userInfo.user_id
  *         type: int
