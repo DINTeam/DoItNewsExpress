@@ -15,6 +15,13 @@ const pool = require('../utils/pool')
  *     summary: 마이페이지 조회
  *     tags: [my-page]
  *     parameters:
+ *       - in: header
+ *         name: x-access-token
+ *         schema:
+ *         type: string
+ *         format: uuid
+ *         required: true
+ *
  *       - in: userInfo.user_id
  *         name: user_id
  *         type: int
@@ -50,6 +57,13 @@ router.get('/', async (req,res,next) => {
  *     summary: 비밀번호 수정
  *     tags: [my-page]
  *     parameters:
+ *       - in: header
+ *         name: x-access-token
+ *         schema:
+ *         type: string
+ *         format: uuid
+ *         required: true
+ *
  *       - in: userInfo.user_id
  *         name: userInfo.user_id
  *         type: int
@@ -91,6 +105,13 @@ router.patch('/:user-id', async (req,res,next) => {
  *     summary: 마이페이지 삭제
  *     tags: [my-page]
  *     parameters:
+ *       - in: header
+ *         name: x-access-token
+ *         schema:
+ *         type: string
+ *         format: uuid
+ *         required: true
+ *
  *       - in: userInfo.user_id
  *         name: userInfo.user_id
  *         type: int
