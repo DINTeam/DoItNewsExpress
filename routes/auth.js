@@ -2,7 +2,6 @@ let express = require('express');
 let router = express.Router();
 const pool = require('../utils/pool');
 const User = require('../model/user');
-const encrypt = require('../model/user');
 const jwt = require('../model/jwt');
 const nodemailer = require('nodemailer');
 
@@ -14,10 +13,12 @@ const nodemailer = require('nodemailer');
  */
 /**
  * @swagger
- * /signup :
+ * /auth/signup :
  *   post:
  *     summary: 회원가입
- *     tags: [signup]
+ *     tags: [auth]
+ *     security :
+ *       - bearerAuth : []
  *     parameters:
  *       - in: body.user_email
  *         name: user_email
@@ -51,30 +52,26 @@ router.post('/signup', async (req, res) => {
     const {user_email, password, user_phone, user_type} = req.body;
     try {
         //이메일 중복되는지 확인하기
-        check_dup = await User.exist_check(user_email);
-        if (!check_dup.length === 0) {
+        let check = await User.exist_check(user_email);
+        if (check.length) {
             res.status(400).send({msg : "존재하는 이메일입니다."});
             return;
         }
 
         //회원가입
         const user_token = await jwt.create(user_email);
-        console.log(user_token);
-        const {salt, user_pw} = await encrypt.encrypt(password);
-        const json = {user_email, user_pw , user_phone, salt,user_type};
+        const {salt, user_pw} = await User.encrypt(password);
+        const json = {user_email, user_pw , user_phone, salt,user_type,user_token};
         const result = await User.signup(json);
-        const result2 = await pool.query('INSERT INTO access SET ?',user_token);
-
         //ip랑 등록시간 넣어주기
         let params = {
             user_id: result[0].insertId,
             user_ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
             user_datetime: Date.now()
         }
-        await pool.query('INSERT INTO user_register set ? ', params);
+        await pool.query('INSERT INTO user_register SET ? ', {params});
 
         res.status(200).send({msg: 'success'});
-
     } catch (err) {
         res.status(400).json(err);
     }
@@ -82,10 +79,12 @@ router.post('/signup', async (req, res) => {
 
 /**
  * @swagger
- * /login :
+ * /auth/login :
  *   post:
  *     summary: 로그인
- *     tags: [login]
+ *     tags: [auth]
+ *     security :
+ *       - bearerAuth : []
  *     parameters:
  *       - in: body.user_email
  *         name: user_email
@@ -108,11 +107,11 @@ router.post('/signup', async (req, res) => {
 router.post('/login', async (req, res) => {
     const {user_email, password} = req.body;
     try {
-        let user_check = await pool.query('SELECT * FROM user WHERE user_email = ?', user_email);
+        let user_check = await pool.query('SELECT * FROM user WHERE user_email = ?', {user_email});
         console.log(user_check);
 
         if (user_check[0][0]) {
-            const hashed = await encrypt.encryptWithSalt(password,user_check[0][0].salt)
+            const hashed = await User.encryptWithSalt(password,user_check[0][0].salt)
             console.log(hashed);
             console.log(user_check[0][0].user_pw);
             if(user_check[0][0].user_pw === hashed){
@@ -130,10 +129,10 @@ router.post('/login', async (req, res) => {
 })
 /**
  * @swagger
- * /change :
+ * /auth/change :
  *   post:
  *     summary: 회원정보 변경
- *     tags: [signup]
+ *     tags: [auth]
  *     parameters:
  *       - in: body.user_email
  *         name: user_email
@@ -170,9 +169,9 @@ router.post('/change',async (req,res) => {
 
         if(user_check[0][0]){
             const user_id = user_check[0][0].user_id;
-            const hashed = await encrypt.encryptWithSalt(password,user_check[0][0].salt)
+            const hashed = await User.encryptWithSalt(password,user_check[0][0].salt)
             if(user_check[0][0].user_pw === hashed){
-                const {salt, user_pw} = await encrypt.encrypt(newpassword);
+                const {salt, user_pw} = await User.encrypt(newpassword);
                 const result = await pool.query('UPDATE user SET user_pw=?,user_phone=?,salt=? WHERE user_id=?', [user_email,user_pw,user_phone,salt,user_id]);
                 res.status(200).send({msg : "회원정보가 정상적으로 변경되었습니다."})
             }else{
@@ -186,29 +185,26 @@ router.post('/change',async (req,res) => {
         res.status(400).json(err);
     }
 });
-
 /*
-//router.update 이거 확인해보기
 router.post('/forgot',async (req,res)=>{
-    let {user_email} = req.body;
+    let {user_id} = req.body;
+    console.log(user_id);
     try{
-        const token = await pool.query('select user_token from user where user_email =?',user_email);
+        const token = await pool.query('select user_token from access where user_id =?',user_id);
         if(token[0][0]){
             let transporter = nodemailer.createTransport({
-                service : 'gmail',
-                port : 465,
-                secure : true,
+                service : 'SendGrid',
                 auth : {
-                    user : ,
-                    pass :
+                    user :'apikey' ,
+                    pass : ''
                 }
             });
             let emailOptions = {
-                 form : ,
+                 from : ,
                  to : user_email,
                  subject : 'DoItNews 비밀번호 초기화 메일입니다.'
-                 html : `<p>비밀번호 초기화를 위해서는 아래의 URL을 클릭하여 주세요.<p>` +
-                        `<a href = `
+                 html : '<p>비밀번호 초기화를 위해서는 아래의 URL을 클릭하여 주세요.<p>'+
+                        '<a href = `https:
             }
         }
     }catch(err) {

@@ -17,6 +17,17 @@ module.exports = {
             email: "doitnews@gmail.com"
         },
 
+        securityDefinitions : {
+            bearerAuth : {
+                type : 'apikey',
+                name : 'Authorization',
+                scheme : 'bearer',
+                in : 'header'
+            },
+            security : [
+                { jwt : [] }
+            ]
+        },
 
         // 각 api에서 설명을 기록할 때 사용할 constant들을 미리 등록해놓는것
         components: {
