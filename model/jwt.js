@@ -1,4 +1,3 @@
-const randToken = require('rand-token');
 const jwt = require('jsonwebtoken');
 const secretKey = 'secret key';
 const options = {
@@ -10,10 +9,10 @@ module.exports={
         const payload ={
             user_email : user_email
         };
-        const token ={
+        const user_token ={
             user_token : jwt.sign(payload,secretKey,options),
         };
-        return token;
+        return user_token;
     },
 
     verify : async (token) => {
