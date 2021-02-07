@@ -52,49 +52,45 @@ router.get('/', async (req,res,next) => {
 
 /**
  * @swagger
- * paths:
- *   /search-history/:user-id :
- *     post:
- *       summary: 검색 기록 추가
- *       tags: [search-history]
- *       parameters:
- *         - in: header
- *           name: x-access-token
- *           schema:
- *           type: string
- *           format: uuid
- *           required: true
- *
- *         - in: body
- *            name: search-history
- *            description: add history
- *            schema:
- *              type: object
- *              required:
- *                - s_keyword
- *                - s_time
- *              properties:
- *                s_keyword:
- *                  type: string
- *                s_time:
- *                  type: bigint
- *       responses:
- *         200:
- *           description: 성공
- *         403:
- *           $ref: '#/components/res/Forbidden'
- *         404:
- *           $ref: '#/components/res/NotFound'
- *         400:
- *           $ref: '#/components/res/BadRequest'
+ * /search-history/:user-id:
+ *   post:
+ *     summary: 검색기록 추가
+ *     tags: [search-history]
+ *     parameters:
+ *       - in: header
+ *         name: x-access-token
+ *         schema:
+ *         type: string
+ *         format: uuid
+ *         required: true
+ *       - name: s_keyword
+ *         in: body
+ *         description: "검색한 단어"
+ *         required: true
+ *         type: string
+ *       - name: s_time
+ *         in: body
+ *         description: "검색 시간"
+ *         required: true
+ *         type: bigint
+ *     responses:
+ *       200:
+ *         description: 성공
+ *       403:
+ *         $ref: '#/components/res/Forbidden'
+ *       404:
+ *         $ref: '#/components/res/NotFound'
+ *       400:
+ *         $ref: '#/components/res/BadRequest'
  */
 router.post('/:user-id', async (req,res,next) => {
     if (req.userInfo){
         try{
             let user_id = req.userInfo.user_id;
-            let {s_keyword, s_time} = req.body;
-            console.log(s_time+"and"+s_keyword)
-            const data = await pool.query('INSERT INTO search_history SET ?', [user_id,s_keyword,s_time])
+            let s_keyword = req.body.s_keyword;
+            let s_time= req.body.s_time;
+            console.log(s_time+" and "+s_keyword)
+            const data = await pool.query('INSERT INTO search_history (user_id,s_keyword,s_time) values(?,?,?)', [user_id,s_keyword,s_time])
             return res.json(data[0])
         }catch (err){
             return  res.status(400).json(err)

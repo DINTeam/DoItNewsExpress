@@ -4,7 +4,7 @@ module.exports = async function (req, res, next) {
     let token = req.headers['x-access-token'];
     if (token) {
         try{
-            let data = await pool.query("select * from access where  user_token= ?", [token]);
+            let data = await pool.query("select * from user where  user_token= ?", [token]);
             req.userInfo = data[0][0];
             next();
         }catch (err){
