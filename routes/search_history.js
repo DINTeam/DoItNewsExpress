@@ -113,10 +113,10 @@ router.post('/:user-id', async (req,res,next) => {
  *         format: uuid
  *         required: true
  *
- *       - in: userInfo.user_id
- *         name: userInfo.user_id
+ *       - in: req.params
+ *         name: s_id
  *         type: int
- *         description: 사용자 id 정보
+ *         description: 검색기록 id 정보
  *     responses:
  *       200:
  *         description: 성공
@@ -131,6 +131,7 @@ router.delete('/:s-id', async (req,res,next) => {
     if (req.userInfo){
         try{
             let {s_id} = req.params;
+            console.log(s_id);
             const data = await pool.query('DELETE from search_history WHERE s_id = ?', s_id)
             return res.json(data[0])
         }catch (err){
@@ -153,11 +154,6 @@ router.delete('/:s-id', async (req,res,next) => {
  *         type: string
  *         format: uuid
  *         required: true
- *
- *       - in: userInfo.user_id
- *         name: userInfo.user_id
- *         type: int
- *         description: 사용자 id 정보
  *     responses:
  *       200:
  *         description: 성공
