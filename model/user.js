@@ -1,14 +1,14 @@
 const pool = require('../utils/pool')
 const crypto = require('crypto');
-
-module.exports = {
-    signup: async (json) => {
-        const result = await pool.query('INSERT INTO user SET ?', {json});
+module.exports={
+    signup : async (json) => {
+        const result = await pool.query('INSERT INTO user SET ?', json);
         return result;
     },
     exist_check : async (user_email) => {
-        const check_result = await pool.query('SELECT * FROM user WHERE user_email = ?', {user_email});
-        return check_result;
+        console.log(user_email)
+        const result = await pool.query('SELECT * FROM user WHERE user_email = ?', user_email);
+        return result;
     },
 
     //회원가입 할때 비밀번호를 받고 salt랑 hashed를 반환한다.
@@ -44,3 +44,6 @@ module.exports = {
         })
     }
 }
+
+
+

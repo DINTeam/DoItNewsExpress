@@ -23,6 +23,7 @@ module.exports = {
                 name : 'Authorization',
                 scheme : 'bearer',
                 in : 'header'
+
             },
             security : [
                 { jwt : [] }

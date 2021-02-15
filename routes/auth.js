@@ -4,7 +4,6 @@ const pool = require('../utils/pool');
 const User = require('../model/user');
 const jwt = require('../model/jwt');
 const nodemailer = require('nodemailer');
-
 /**
  * @swagger
  * tags:
@@ -17,26 +16,27 @@ const nodemailer = require('nodemailer');
  *   post:
  *     summary: 회원가입
  *     tags: [auth]
- *     security :
- *       - bearerAuth : []
- *     parameters:
- *       - in: body.user_email
- *         name: user_email
- *         type: varchar(45)
- *         description: "사용자 이메일 정보"
- *       - in: body.password
- *         name: password
- *         type: varchar(200)
- *         description: "사용자 비밀번호 정보"
- *       - in: body.user_phone
- *         name: user_phone
- *         type: varchar(11)
- *         description: "사용자 전화번호 정보"
- *       - in: body.user_type
- *         name: user_type
- *         type: int
- *         description: "사용자 유형 정보"
-
+ *     consumes:
+ *       - application/x-www-form-urlencoded
+ *     requestBody:
+ *       content:
+ *          application/x-www-form-urlencoded:
+ *              schema:
+ *                  type: object
+ *                  properties:
+ *                      user_email:
+ *                          type: varchar(45)
+ *                      password:
+ *                          type: varchar(200)
+ *                      user_phone:
+ *                          type: varchar(11)
+ *                      user_type:
+ *                          type: int
+ *              required:
+ *                  - user_email
+ *                  - password
+ *                  - user_phone
+ *                  - user_type
  *     responses:
  *       200:
  *         description: 성공
@@ -53,47 +53,58 @@ router.post('/signup', async (req, res) => {
     try {
         //이메일 중복되는지 확인하기
         let check = await User.exist_check(user_email);
-        if (check.length) {
+        if (!check.length) {
             res.status(400).send({msg : "존재하는 이메일입니다."});
             return;
         }
 
         //회원가입
         const user_token = await jwt.create(user_email);
+        console.log(user_token);
         const {salt, user_pw} = await User.encrypt(password);
-        const json = {user_email, user_pw , user_phone, salt,user_type,user_token};
+        const json = {user_email,user_pw,user_phone,salt,user_type,user_token};
         const result = await User.signup(json);
+
         //ip랑 등록시간 넣어주기
         let params = {
             user_id: result[0].insertId,
             user_ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
             user_datetime: Date.now()
         }
-        await pool.query('INSERT INTO user_register SET ? ', {params});
+        await pool.query('INSERT INTO user_register SET ? ', params);
 
         res.status(200).send({msg: 'success'});
     } catch (err) {
         res.status(400).json(err);
     }
 })
-
 /**
  * @swagger
  * /auth/login :
  *   post:
  *     summary: 로그인
  *     tags: [auth]
- *     security :
- *       - bearerAuth : []
+ *     consumes:
+ *       - application/x-www-form-urlencoded
+ *     requestBody:
+ *       content:
+ *          application/x-www-form-urlencoded:
+ *              schema:
+ *                  type: object
+ *                  properties:
+ *                      user_email:
+ *                          type: varchar(45)
+ *                      password:
+ *                          type: varchar(200)
+ *              required:
+ *                  - user_email
+ *                  - password
  *     parameters:
- *       - in: body.user_email
- *         name: user_email
- *         type: varchar(45)
- *         description: "사용자 이메일 정보"
- *       - in: body.password
- *         name: password
- *         type: varchar(200)
-
+ *       - in: header
+ *         name: x-access-token
+ *         type: string
+ *         format: uuid
+ *         required: true
  *     responses:
  *       200:
  *         description: 성공
@@ -107,9 +118,7 @@ router.post('/signup', async (req, res) => {
 router.post('/login', async (req, res) => {
     const {user_email, password} = req.body;
     try {
-        let user_check = await pool.query('SELECT * FROM user WHERE user_email = ?', {user_email});
-        console.log(user_check);
-
+        let user_check = await pool.query('SELECT * FROM user WHERE user_email = ?', user_email);
         if (user_check[0][0]) {
             const hashed = await User.encryptWithSalt(password,user_check[0][0].salt)
             console.log(hashed);
@@ -131,26 +140,32 @@ router.post('/login', async (req, res) => {
  * @swagger
  * /auth/change :
  *   post:
- *     summary: 회원정보 변경
+ *     summary: 회원정보 수정
  *     tags: [auth]
+ *     consumes:
+ *       - application/x-www-form-urlencoded
+ *     requestBody:
+ *       content:
+ *          application/x-www-form-urlencoded:
+ *              schema:
+ *                  type: object
+ *                  properties:
+ *                      user_email:
+ *                          type: varchar(45)
+ *                      password:
+ *                          type: varchar(200)
+ *                      newpassword:
+ *                          type: varchar(200)
+ *              required:
+ *                  - user_email
+ *                  - password
+ *                  - newpassword
  *     parameters:
- *       - in: body.user_email
- *         name: user_email
- *         type: varchar(45)
- *         description: "사용자 이메일 정보"
- *       - in: body.password
- *         name: password
- *         type: varchar(200)
- *         description: "사용자 비밀번호 정보"
- *       - in: body.user_phone
- *         name: user_phone
- *         type: varchar(11)
- *         description: "사용자 전화번호 정보"
- *       - in: body.newpassword
- *         name: newpassword
- *         type: varchar(200)
- *         description: "사용자 새로운 비밀번호 정보 "
-
+ *       - in: header
+ *         name: x-access-token
+ *         type: string
+ *         format: uuid
+ *         required: true
  *     responses:
  *       200:
  *         description: 성공
@@ -162,17 +177,15 @@ router.post('/login', async (req, res) => {
  *         $ref: '#/components/res/BadRequest'
  */
 router.post('/change',async (req,res) => {
-    let {user_email,password,user_phone,newpassword} = req.body;
+    let {user_email,password,newpassword} = req.body;
     try{
         let user_check = await pool.query('SELECT * FROM user WHERE user_email = ?', user_email);
-        console.log(user_check);
 
         if(user_check[0][0]){
-            const user_id = user_check[0][0].user_id;
             const hashed = await User.encryptWithSalt(password,user_check[0][0].salt)
             if(user_check[0][0].user_pw === hashed){
                 const {salt, user_pw} = await User.encrypt(newpassword);
-                const result = await pool.query('UPDATE user SET user_pw=?,user_phone=?,salt=? WHERE user_id=?', [user_email,user_pw,user_phone,salt,user_id]);
+                const result = await pool.query('UPDATE user SET user_pw=?, salt=? WHERE user_email=?', [user_pw,salt,user_email]);
                 res.status(200).send({msg : "회원정보가 정상적으로 변경되었습니다."})
             }else{
                 res.status(403).send({msg : "비밀번호가 일치하지 않습니다."});
