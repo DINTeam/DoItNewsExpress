@@ -21,11 +21,6 @@ const pool = require('../utils/pool')
  *         type: string
  *         format: uuid
  *         required: true
- *
- *       - in: userInfo.user_id
- *         name: user_id
- *         type: int
- *         description: "사용자 id 정보"
  *     responses:
  *       200:
  *         description: 성공
@@ -49,13 +44,27 @@ router.get('/', async (req,res,next) => {
         res.status(403).send({"message" : "권한이 없습니다"});
     }
 })
-
 /**
  * @swagger
- * /coin/:user-id:
- *   patch:
+ * /coin/get:
+ *   post:
  *     summary: 코인 추가
  *     tags: [coin]
+ *     consumes:
+ *       - application/x-www-form-urlencoded
+ *     requestBody:
+ *       content:
+ *          application/x-www-form-urlencoded:
+ *              schema:
+ *                  type: object
+ *                  properties:
+ *                      coin:
+ *                          type: string
+ *                      c_private_key:
+ *                          type: string
+ *              required:
+ *                  - coin
+ *                  - c_private_key
  *     parameters:
  *       - in: header
  *         name: x-access-token
@@ -63,16 +72,6 @@ router.get('/', async (req,res,next) => {
  *         type: string
  *         format: uuid
  *         required: true
- *
- *       - in: body.coin
- *         name: coin
- *         type: string
- *         description: 추가할 코인 개수
- *
- *       - in: body.c_private_key
- *         name: c_private_key
- *         type: string
- *         description: 코인 키값
  *     responses:
  *       200:
  *         description: 성공
@@ -83,13 +82,13 @@ router.get('/', async (req,res,next) => {
  *       400:
  *         $ref: '#/components/res/BadRequest'
  */
-router.patch('/:user-id', async (req,res,next) => {
+router.post('/get', async (req,res,next) => {
     if (req.userInfo){
         try{
             let user_id = req.userInfo.user_id;
-            console.log(user_id)
             let {coin, c_private_key} =req.body;
-            const data = await pool.query('UPDATE coin SET c_available=?, c_private_key=? WHERE user_id = ?', [user_id,coin, c_private_key])
+            console.log("coin:"+coin+"and"+c_private_key)
+            const data = await pool.query('UPDATE coin SET c_available=?, c_private_key=? WHERE user_id = ?', [coin, c_private_key,user_id])
             return res.json(data[0])
         }catch (err){
             return  res.status(400).json(err)
@@ -112,11 +111,6 @@ router.patch('/:user-id', async (req,res,next) => {
  *         type: string
  *         format: uuid
  *         required: true
- *
- *       - in: userInfo.user_id
- *         name: userInfo.user_id
- *         type: int
- *         description: 사용자 id 정보
  *     responses:
  *       200:
  *         description: 성공
@@ -131,7 +125,7 @@ router.delete('/:user-id', async (req,res,next) => {
     if (req.userInfo){
         try{
             let user_id = req.userInfo.user_id;
-            const data = await pool.query('DELETE from coin WHERE user_id = ?', user_id)
+            const data = await pool.query('UPDATE coin SET c_available=0 where user_id=?',user_id)
             return res.json(data[0])
         }catch (err){
             return  res.status(400).json(err)
