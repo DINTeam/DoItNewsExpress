@@ -21,11 +21,6 @@ const pool = require('../utils/pool')
  *         type: string
  *         format: uuid
  *         required: true
- *
- *       - in: userInfo.user_id
- *         name: user_id
- *         type: int
- *         description: "사용자 id 정보"
  *     responses:
  *       200:
  *         description: 성공
@@ -106,22 +101,28 @@ router.post('/:user-id', async (req,res,next) => {
 })
 /**
  * @swagger
- * /search-history/:s-id :
- *    delete:
+ * /search-history/:s-id:
+ *   delete:
  *     summary: 개별 검색 기록 삭제
  *     tags: [search-history]
+ *     consumes:
+ *       - application/x-www-form-urlencoded
+ *     requestBody:
+ *       content:
+ *          application/x-www-form-urlencoded:
+ *              schema:
+ *                  type: object
+ *                  properties:
+ *                      s_id:
+ *                          type: int
+ *              required:
+ *                  - s_id
  *     parameters:
  *       - in: header
  *         name: x-access-token
- *         schema:
  *         type: string
  *         format: uuid
  *         required: true
- *
- *       - in: req.params
- *         name: s_id
- *         type: int
- *         description: 검색기록 id 정보
  *     responses:
  *       200:
  *         description: 성공
@@ -135,7 +136,7 @@ router.post('/:user-id', async (req,res,next) => {
 router.delete('/:s-id', async (req,res,next) => {
     if (req.userInfo){
         try{
-            let {s_id} = req.params;
+            let s_id = req.body.s_id;
             console.log(s_id);
             const data = await pool.query('DELETE from search_history WHERE s_id = ?', s_id)
             return res.json(data[0])
@@ -148,14 +149,13 @@ router.delete('/:s-id', async (req,res,next) => {
 })
 /**
  * @swagger
- * /search-history/:user-id :
- *    delete:
- *     summary: 전체 검색 기록 삭제
+ * /search-history/all:
+ *   delete:
+ *     summary: 전체 검색기록 삭제
  *     tags: [search-history]
  *     parameters:
  *       - in: header
  *         name: x-access-token
- *         schema:
  *         type: string
  *         format: uuid
  *         required: true
@@ -169,7 +169,7 @@ router.delete('/:s-id', async (req,res,next) => {
  *       400:
  *         $ref: '#/components/res/BadRequest'
  */
-router.delete('/:user-id', async (req,res,next) => {
+router.delete('/all', async (req,res,next) => {
     if (req.userInfo){
         try{
             let user_id = req.userInfo.user_id;
