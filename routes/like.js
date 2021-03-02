@@ -5,7 +5,7 @@ const pool = require('../utils/pool')
 /**
  * @swagger
  * tags:
- *   name: Like
+ *   name: like
  *   description: 좋아요
  */
 
