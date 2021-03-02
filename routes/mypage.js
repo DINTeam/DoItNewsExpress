@@ -21,11 +21,6 @@ const pool = require('../utils/pool')
  *         type: string
  *         format: uuid
  *         required: true
- *
- *       - in: userInfo.user_id
- *         name: user_id
- *         type: int
- *         description: "사용자 id 정보"
  *     responses:
  *       200:
  *         description: 성공
@@ -49,60 +44,11 @@ router.get('/', async (req,res,next) => {
         res.status(403).send({"message" : "권한이 없습니다"});
     }
 })
-
 /**
  * @swagger
- * /my-page/:user-id :
- *   patch:
- *     summary: 비밀번호 수정
- *     tags: [my-page]
- *     parameters:
- *       - in: header
- *         name: x-access-token
- *         schema:
- *         type: string
- *         format: uuid
- *         required: true
- *
- *       - in: userInfo.user_id
- *         name: userInfo.user_id
- *         type: int
- *         description: 사용자 id 정보
- *
- *       - in: body.user_pw
- *         name: user_pw
- *         type: string
- *         description: 새로운 비밀번호
- *     responses:
- *       200:
- *         description: 성공
- *       403:
- *         $ref: '#/components/res/Forbidden'
- *       404:
- *         $ref: '#/components/res/NotFound'
- *       400:
- *         $ref: '#/components/res/BadRequest'
- */
-router.patch('/:user-id', async (req,res,next) => {
-    if (req.userInfo){
-        try{
-            let user_id = req.userInfo.user_id;
-            let {user_pw} = req.body;
-            const data = await pool.query('UPDATE user SET user_pw=? WHERE user_id = ?', [user_id,user_pw])
-            return res.json(data[0])
-        }catch (err){
-            return  res.status(400).json(err)
-        }
-    }else{
-        res.status(403).send({"message" : "권한이 없습니다"});
-    }
-})
-
-/**
- * @swagger
- * /my-page/:user-id :
+ * /my-page/out:
  *   delete:
- *     summary: 마이페이지 삭제
+ *     summary: 회원탈퇴
  *     tags: [my-page]
  *     parameters:
  *       - in: header
@@ -111,11 +57,6 @@ router.patch('/:user-id', async (req,res,next) => {
  *         type: string
  *         format: uuid
  *         required: true
- *
- *       - in: userInfo.user_id
- *         name: userInfo.user_id
- *         type: int
- *         description: 사용자 id 정보
  *     responses:
  *       200:
  *         description: 성공
@@ -126,7 +67,7 @@ router.patch('/:user-id', async (req,res,next) => {
  *       400:
  *         $ref: '#/components/res/BadRequest'
  */
-router.delete('/:user-id', async (req,res,next) => {
+router.delete('/out', async (req,res,next) => {
     if (req.userInfo){
         try{
             let user_id = req.userInfo.user_id;
