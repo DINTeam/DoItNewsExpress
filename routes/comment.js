@@ -10,46 +10,16 @@ const pool = require('../utils/pool')
  */
 /**
  * @swagger
- * /comment:
- *   get:
- *     summary: 댓글 조회
- *     tags: [comment]
- *     parameters:
- *       - in: userInfo
- *         name: userInfo
- *         type: string
- *         description: "사용자 정보 조회"
- *     responses:
- *       200:
- *         description: 성공
- *       403:
- *         $ref: '#/components/res/Forbidden'
- *       404:
- *         $ref: '#/components/res/NotFound'
- *       400:
- *         $ref: '#/components/res/BadRequest'
- */
-router.get('/', async (req,res,next) => {
-
-        try{
-            const data = await pool.query('SELECT * FROM comment')
-            return res.json(data[0])
-        }catch (err){
-            return  res.status(400).json(err)
-        }
-})
-
-/**
- * @swagger
- * /comment/:ar_id :
+ * /comment/{ar-id}:
  *   get:
  *     summary: 기사 댓글 조회
  *     tags: [comment]
  *     parameters:
- *       - in: body.ar_id
- *         name: ar_id
+ *       - in: path
+ *         name: ar-id
+ *         required: true
  *         type: int
- *         description: "기사 id 정보"
+ *         description: 기사 id 정보
  *     responses:
  *       200:
  *         description: 성공
@@ -61,9 +31,9 @@ router.get('/', async (req,res,next) => {
  *         $ref: '#/components/res/BadRequest'
  */
 router.get('/:ar_id', async (req,res,next) => {
-
         try{
-            let {ar_id} = req.params;
+            let ar_id = req.params.ar_id;
+            console.log("ar_id : "+ar_id);
             const data = await pool.query('SELECT * FROM comment WHERE ar_id = ?', ar_id)
             return res.json(data[0])
         }catch (err){
@@ -77,6 +47,24 @@ router.get('/:ar_id', async (req,res,next) => {
  *   post:
  *     summary: 댓글 달기
  *     tags: [comment]
+ *     consumes:
+ *       - application/x-www-form-urlencoded
+ *     requestBody:
+ *       content:
+ *          application/x-www-form-urlencoded:
+ *              schema:
+ *                  type: object
+ *                  properties:
+ *                      ar_id:
+ *                          type: int
+ *                      c_comment:
+ *                          type: string
+ *                      c_time:
+ *                          type: bigint
+ *              required:
+ *                  - ar_id
+ *                  - c_comment
+ *                  - c_time
  *     parameters:
  *       - in: header
  *         name: x-access-token
@@ -84,26 +72,6 @@ router.get('/:ar_id', async (req,res,next) => {
  *         type: string
  *         format: uuid
  *         required: true
- *
- *       - in: userInfo.user_id
- *         name: userInfo.user_id
- *         type: int
- *         description: 사용자 id 정보
- *         
- *       - in: body.ar_id
- *         name: ar_id
- *         type: int
- *         description: "기사 id 정보"
- *
- *       - in: body.c_comment
- *         name: c_comment
- *         type: string
- *         description: 댓글 내용
- *         
- *       - in: body.c_time
- *         name: c_time
- *         type: bogint
- *         description: 댓글 등록 시간
  *     responses:
  *       200:
  *         description: 성공
@@ -114,12 +82,13 @@ router.get('/:ar_id', async (req,res,next) => {
  *       400:
  *         $ref: '#/components/res/BadRequest'
  */
-router.post('/user-id', async (req,res,next) => {
+router.post('/:user-id', async (req,res,next) => {
     if (req.userInfo){
         try{
             let user_id = req.userInfo.user_id;
             let {ar_id,c_comment,c_time}=req.body;
-            const data = await pool.query('INSERT INTO search_history SET ?', [user_id, ar_id,c_comment,c_time])
+            console.log(ar_id+"&"+c_comment);
+            const data = await pool.query('INSERT INTO comment (ar_id, c_comment, user_id, c_time) VALUES (?,?,?,?)', [ar_id,c_comment,user_id,c_time])
             return res.json(data[0])
         }catch (err){
             return  res.status(400).json(err)
@@ -131,10 +100,22 @@ router.post('/user-id', async (req,res,next) => {
 
 /**
  * @swagger
- * /comment/user-id:
+ * /comment/:c-id:
  *   delete:
  *     summary: 댓글 삭제
  *     tags: [comment]
+ *     consumes:
+ *       - application/x-www-form-urlencoded
+ *     requestBody:
+ *       content:
+ *          application/x-www-form-urlencoded:
+ *              schema:
+ *                  type: object
+ *                  properties:
+ *                      c_id:
+ *                          type: int
+ *              required:
+ *                  - c_id
  *     parameters:
  *       - in: header
  *         name: x-access-token
@@ -142,16 +123,6 @@ router.post('/user-id', async (req,res,next) => {
  *         type: string
  *         format: uuid
  *         required: true
- *
- *       - in: userInfo.user_id
- *         name: userInfo.user_id
- *         type: int
- *         description: 사용자 id 정보
- *         
- *       - in: body.c_id
- *         name: c_id
- *         type: int
- *         description: 댓글 id 정보
  *     responses:
  *       200:
  *         description: 성공
@@ -162,13 +133,21 @@ router.post('/user-id', async (req,res,next) => {
  *       400:
  *         $ref: '#/components/res/BadRequest'
  */
-router.delete('/:user-id', async (req,res,next) => {
+router.delete('/:c-id', async (req,res,next) => {
     if (req.userInfo){
         try{
             let user_id = req.userInfo.user_id;
             let {c_id} = req.body;
-            const data = await pool.query('DELETE from comment WHERE user_id = ? && comment.c_id', [user_id,c_id])
-            return res.json(data[0])
+            let row = await pool.query('select user_id from comment where c_id=?',c_id);
+            let parsedResult = JSON.parse(JSON.stringify(row[0]));
+            let proc_user_id = parsedResult[0].user_id;
+            let c_user_id = parseInt(proc_user_id);
+            console.log("c_user_id : "+c_user_id);
+            if(user_id === c_user_id) {
+                const data = await pool.query('DELETE from comment WHERE c_id=?', c_id)
+                return res.json(data[0])
+            }
+            else res.status(403).send({"message" : "자신의 댓글만 삭제 가능합니다"});
         }catch (err){
             return  res.status(400).json(err)
         }
