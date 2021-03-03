@@ -85,7 +85,6 @@ router.get('/', async (req, res) => {
 router.get('/:ar_id', async (req, res) => {
         try {
             let ar_id = req.params.ar_id;
-            console.log("ar_id : "+ ar_id);
             const result =await pool.query('update article set ar_views = ar_views + 1 where ar_id = ?',{ar_id});
             const data=await pool.query('select * from article where ar_id =?',ar_id);
             return res.json(data[0]);
