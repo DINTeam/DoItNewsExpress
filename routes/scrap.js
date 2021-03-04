@@ -11,59 +11,64 @@ const pool = require('../utils/pool')
 
 /**
  * @swagger
- * /:ar_id :
+ * /scrap/{user_id} :
  *   get:
  *     summary: 스크랩 조회
  *     tags: [scrap]
  *     parameters:
- *       - in: body.ar_id
- *         name : ar_id
+ *       - in: header
+ *         name: x-access-token
+ *         type: string
+ *         format: uuid
+ *         required: true
+ *       - in: path
+ *         name: user_id
+ *         required: true
  *         type: int
- *         description: 기사 id 조회
+ *         description: 스크랩을 한 사용자 id 정보
  *     responses:
  *       200:
  *         description: 성공
  *       403:
  *         $ref: '#/components/res/Forbidden'
  *       404:
+ *
  *         $ref: '#/components/res/NotFound'
  *       500:
  *         $ref: '#/components/res/BadRequest'
  */
-router.get('/:ar_id',async(req,res) => {
-    if(req.userInfo){
+router.get('/:user_id',async(req,res) => {
         try{
-            var {ar_id} = req.body;
-            const data =await pool.query('select s_title,s_reporter,s_likes from scrap where ar_id=?',ar_id);
-            return res.json(data[0]);
+            let user_id = req.params.user_id;
+            const data =await pool.query('select s_title,s_reporter,s_like from scrap where user_id=?',user_id);
+            return res.json(data[0][0]);
         }catch (err) {
             return res.status(500).json(err);
         }
-    }else{
-        res.status(403).send({msg : "권한이 없습니다."});
-    }
 });
 
 /**
  * @swagger
- * /:ar_id :
- *   get:
- *     summary: 스크랩 목록에 저장
+ * /scrap/{user_id}/{ar_id} :
+ *   post:
+ *     summary: 스크랩한 기사들 목록에 넣기
  *     tags: [scrap]
  *     parameters:
- *       - in: body.ar_id
- *         name : ar_id
+ *       - in: header
+ *         name: x-access-token
+ *         type: string
+ *         format: uuid
+ *         required: true
+ *       - in: path
+ *         name: user_id
+ *         required: true
  *         type: int
- *         description: 기사 id 조회
- *       - in: body.s_title
- *         name : s_title
- *         type: varchar(45)
- *         description: "스크랩 한 기사 제목"
- *       - in: body.s_reporter
- *         name : s_reporter
- *         type: varchar(45)
- *         description: "스크랩 한 기사 작성자"
- *
+ *         description: 스크랩을 하는 사용자의 id 정보
+ *       - in: path
+ *         name: ar_id
+ *         required: true
+ *         type: int
+ *         description: 스크랩 한 기사의 id 정보
  *     responses:
  *       200:
  *         description: 성공
@@ -74,19 +79,18 @@ router.get('/:ar_id',async(req,res) => {
  *       500:
  *         $ref: '#/components/res/BadRequest'
  */
-router.post('/:ar_id',async(req,res) => {
-    if(req.userInfo){
+router.post('/:user_id/:ar_id',async(req,res) => {
         try{
-            let {ar_id,s_title,s_reporter} =req.body;
-            let s_like = await pool.query('select ar_likes from article where ar_id=?',ar_id);
+            let user_id = req.params.user_id;
+            let ar_id = req.params.ar_id;
+            let ar_title = await pool.query('select ar_title from article where ar_id=?',ar_id);
+            let ar_reporter = await pool.query('select ar_reporter from article where ar_id=?',ar_id);
+            let like_cnt= await pool.query('select like_cnt from article where ar_id=?',ar_id);
             let s_time = Date.now();
-            const data = await pool.query('insert into scrap values(?,?,?,?) where ar_id=?',[s_title,s_reporter,s_like,s_time,ar_id])
+            const data = await pool.query('insert into scrap(ar_title,ar_reporter,s_time,like_cnt,ar_id,user_id) values (?,?,?,?,?,?)',[ar_title,ar_reporter,s_time,like_cnt,ar_id,user_id]);
             return res.json(data[0]);
         }catch(err){
             res.status(400).json(err);
         }
-    }else{
-        res.status(403).send({msg : "권한이 없습니다."});
-    }
 })
 module.exports = router;

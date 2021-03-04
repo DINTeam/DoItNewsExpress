@@ -15,14 +15,25 @@ const pool = require('../utils/pool');
  *   get:
  *     summary: 사용자 포트폴리오 목록 조회
  *     tags: [portfolio]
+ *     components:
+ *      schemas:
+ *          Portfolio:
+ *                  properties:
+ *                      p_title:
+ *                          type: varchar(45)
+ *                      p_register_time :
+ *                          type: bigint
  *     parameters:
- *       - in: userInfo.user_id
- *         name: user_id
- *         type: int
- *         description: 사용자 id 정보
+ *       - in: header
+ *         name: x-access-token
+ *         type: string
+ *         format: uuid
+ *         required: true
  *     responses:
  *       200:
  *         description: 성공
+ *         schema:
+ *          $ref: '#/components/schemas/Portfolio'
  *       403:
  *         $ref: '#/components/res/Forbidden'
  *       404:
@@ -31,33 +42,31 @@ const pool = require('../utils/pool');
  *         $ref: '#/components/res/BadRequest'
  */
 router.get('/',async(req,res) => {
-    if (req.userInfo) {
         try {
-            let user_id = req.userInfo.user.id;
-            const data = pool.query('select p_title,DATE_FORMAT(p_register_time,"%Y/%M/%D") as p_register_time , p_views from portfolio where user_id=? order by p_id desc', user_id);
+            const data =await pool.query('select p_title,DATE_FORMAT(p_register_time,"%Y/%M/%D") as p_register_time from portfolio');
             return res.json(data[0]);
         } catch (err) {
             return res.status(400).json(err);
         }
-    } else {
-        res.status(403).send({"message": "권한이 없습니다."});
-    }
 });
 
 /**
  * @swagger
- * /detail/:p_id :
+ * /portfolio/{p_id} :
  *   get:
  *     summary: 포트폴리오 상세보기
  *     tags: [portfolio]
  *     parameters:
- *       - in: body.p_id
+ *       - in: path
  *         name: p_id
  *         type: int
+ *         required: true
  *         description: 포트폴리오 id 정보
  *     responses:
  *       200:
  *         description: 성공
+ *         schema:
+ *          $ref: '#/components/schemas/portfolio'
  *       403:
  *         $ref: '#/components/res/Forbidden'
  *       404:
@@ -65,55 +74,54 @@ router.get('/',async(req,res) => {
  *       400:
  *         $ref: '#/components/res/BadRequest'
  */
-router.get('/detail/:p_id',async (req,res) => {
-    if(req.userInfo){
+router.get('/:p_id',async (req,res) => {
         try{
-            let {p_id} = req.body;
-            const data = await pool.query('select p_id,p_title,p_category,DATE_FORMAT(p_start_date,"%Y-%M-%D") as p_start_date,DATE_FORMAT(p_end_date,"%Y-%M-%D") as p_end_date,p_purpose,p_process from portfolio where p_id =?',[p_id]);
+            let p_id = req.params.p_id;
+            const data = await pool.query('select * from portfolio where p_id =?',p_id);
             return res.json(data[0]);
         }catch(err){
             return res.status(400).json(err);
         }
-    }else{
-        res.status(403).send({"message" : "권한이 없습니다."});
-    }
 })
 /**
  * @swagger
- * /create :
+ * /portfolio/add :
  *   post:
  *     summary: 포트폴리오 작성하기
  *     tags: [portfolio]
+ *     consumes:
+ *       - application/x-www-form-urlencoded
+ *     requestBody:
+ *       content:
+ *          application/x-www-form-urlencoded:
+ *              schema:
+ *                  type: object
+ *                  properties:
+ *                      p_title:
+ *                          type: varchar(45)
+ *                      p_category:
+ *                          type: varchar(45)
+ *                      p_start_date:
+ *                          type: bigint
+ *                      p_end_date:
+ *                          type: bigint
+ *                      p_purpose:
+ *                          type: varchar(45)
+ *                      p_process:
+ *                          type: mediumtext
+ *              required:
+ *                  - p_title
+ *                  - p_category
+ *                  - p_start_date
+ *                  - p_end_date
+ *                  - p_purpose
+ *                  - p_process
  *     parameters:
- *       - in: body.p_title
- *         name: p_title
- *         type: varchar(45)
- *         description: "포트폴리오 제목"
- *       - in: body.p_category
- *         name: p_category
- *         type: varchar(45)
- *         description: "카테고리"
- *       - in: body.p_start_date
- *         name: p_start_date
- *         type: bigint
- *         description: "취재 시작 날짜"
- *       - in: body.p_end_date
- *         name: p_end_date
- *         type: bigint
- *         description: "취재 완료 날짜"
- *       - in: body.p_purpose
- *         name: p_purpose
- *         type: varchar(45)
- *         description: "취재 목적"
- *       - in: body.p_process
- *         name: p_process
- *         type: mediumtext
- *         description: "취재 과정"
- *       - in: p_register_time
- *         name: p_register_time
- *         type: bigint
- *         description: "포트폴리오 등록 시간"
- *
+ *       - in: header
+ *         name: x-access-token
+ *         type: string
+ *         format: uuid
+ *         required: true
  *     responses:
  *       200:
  *         description: 성공
@@ -124,58 +132,52 @@ router.get('/detail/:p_id',async (req,res) => {
  *       400:
  *         $ref: '#/components/res/BadRequest'
  */
-router.post('/create',async(req,res) => {
-    if (req.userInfo) {
+router.post('/add',async(req,res) => {
         try{
             let {p_title,p_category,p_start_date,p_end_date,p_purpose,p_process} = req.body;
             let p_register_time = Date.now();
-            const data = await pool.query('INSERT INTO portfolio(p_title,p_category,p_start_date,p_end_date,p_purpose,p_process,p_register_time) values (?,?,?,?,?,?,?)',
-                [p_title,p_category,p_start_date,p_end_date,p_purpose,p_process,p_register_time]);
+            const data = await pool.query('INSERT INTO portfolio SET ?',
+                {p_title,p_category,p_start_date,p_end_date,p_purpose,p_process,p_register_time});
             return res.json(data[0]);
         }catch(err){
             res.status(400).json(err);
         }
-    } else {
-        res.status(403).send({msg: '권한이 없습니다.'});
-    }
 });
 
 /**
  * @swagger
- * /:p_id :
- *   patch:
+ * /portfolio/update/:p_id :
+ *   post:
  *     summary: 포트폴리오 수정하기
  *     tags: [portfolio]
+ *     consumes:
+ *       - application/x-www-form-urlencoded
+ *     requestBody:
+ *       content:
+ *          application/x-www-form-urlencoded:
+ *              schema:
+ *                  type: object
+ *                  properties:
+ *                      p_id:
+ *                          type: int
+ *                      p_title:
+ *                          type: varchar(45)
+ *                      p_category:
+ *                          type: varchar(45)
+ *                      p_start_date:
+ *                          type: bigint
+ *                      p_end_date:
+ *                          type: bigint
+ *                      p_purpose:
+ *                          type: varchar(45)
+ *                      p_process:
+ *                          type: mediumtext
  *     parameters:
- *       - in: body.p_id
- *         name: p_id
- *         type: int
- *         description: "포트폴리오 정보"
- *       - in: body.p_title
- *         name: p_title
- *         type: varchar(45)
- *         description: "포트폴리오 제목"
- *       - in: body.p_category
- *         name: p_category
- *         type: varchar(45)
- *         description: "카테고리"
- *       - in: body.p_start_date
- *         name: p_start_date
- *         type: bigint
- *         description: "취재 시작 날짜"
- *       - in: body.p_end_date
- *         name: p_end_date
- *         type: bigint
- *         description: "취재 완료 날짜"
- *       - in: body.p_purpose
- *         name: p_purpose
- *         type: varchar(45)
- *         description: "취재 목적"
- *       - in: body.p_process
- *         name: p_process
- *         type: mediumtext
- *         description: "취재 과정"
-
+ *       - in: header
+ *         name: x-access-token
+ *         type: string
+ *         format: uuid
+ *         required: true
  *     responses:
  *       200:
  *         description: 성공
@@ -186,8 +188,7 @@ router.post('/create',async(req,res) => {
  *       400:
  *         $ref: '#/components/res/BadRequest'
  */
-router.patch("/:p_id",async(req,res) => {
-    if (req.userInfo) {
+router.post("/update/:p_id",async(req,res) => {
         try{
             let {p_id,p_title,p_category,p_start_date,p_end_date,p_purpose,p_process} = req.body;
             const data = await pool.query('UPDATE portfolio SET p_title=?,p_category=?,p_start_date=?,p_end_date=?,p_purpose=?,p_process=? WHERE p_id=?',
@@ -196,22 +197,32 @@ router.patch("/:p_id",async(req,res) => {
         }catch(err){
             res.status(400).json(err);
         }
-       }else{
-        res.status(403).send({msg : '권한이 없습니다.'});
-    }
 });
 
 /**
  * @swagger
- * /:p_id :
+ * /portfolio/:p_id:
  *   delete :
- *     summary: 포트폴리오 삭제하기
+ *     summary: 포트폴리오 삭제
  *     tags: [portfolio]
+ *     consumes:
+ *       - application/x-www-form-urlencoded
+ *     requestBody:
+ *       content:
+ *          application/x-www-form-urlencoded:
+ *              schema:
+ *                  type: object
+ *                  properties:
+ *                      p_id:
+ *                          type: int
+ *              required:
+ *                  - ar_id
  *     parameters:
- *       - in: p_id
- *         name: p_id
- *         type: int
- *         description: 포트폴리오 id 정보
+ *       - in: header
+ *         name: x-access-token
+ *         type: string
+ *         format: uuid
+ *         required: true
  *     responses:
  *       200:
  *         description: 성공
@@ -223,17 +234,13 @@ router.patch("/:p_id",async(req,res) => {
  *         $ref: '#/components/res/BadRequest'
  */
 router.delete('/:p_id', async(req,res) =>{
-    if(req.userInfo){
         try{
             let {p_id} = req.body;
-            const data = await pool.query('DELETE FROM portfolio WHERE p_id=?',[p_id]);
+            const data = await pool.query('DELETE FROM portfolio WHERE p_id=?',p_id);
             return res.json(data[0]);
         }catch(err) {
             res.status(400).json(err);
         }
-    }else{
-        res.status(403).send({msg : '권한이 없습니다.'});
-    }
 });
 
 module.exports = router;

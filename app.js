@@ -4,7 +4,7 @@ let path = require('path');
 let cookieParser = require('cookie-parser');
 let logger = require('morgan');
 const asyncify = require('express-asyncify');
-var router = express.Router();
+const router = express.Router();
 
 const swaggerJSDoc = require('swagger-jsdoc');
 const swaggerOption = require('./swagger');
@@ -24,7 +24,6 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(tokenMiddleWare);
-app.use('/portfolio',require('./routes/portfolio'));
 
 app.use('/', router);
 app.use('/search-history',require('./routes/search_history'));
@@ -66,5 +65,6 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
 
 module.exports = app;
