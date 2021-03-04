@@ -27,7 +27,7 @@ const pool = require('../utils/pool')
  */
 router.get('/', async (req, res, next) => {
     try {
-        const data = await pool.query('select * from article', [])
+        const data = await pool.query('select * from article')
         return res.json(data[0])
     } catch (err) {
         return res.status(400).json(err)
@@ -36,15 +36,15 @@ router.get('/', async (req, res, next) => {
 
 /**
  * @swagger
- * /category/:c_name :
+ * /category/{c-id} :
  *   get:
  *     summary: 특정 카테고리 리스트 조회
  *     tags: [category]
  *     parameters:
- *       - in: body.c_name
- *         name: c_name
+ *       - in: path
+ *         name: c-id
  *         type: string
- *         description: 카테고리 이름
+ *         description: 카테고리 번호
  *     responses:
  *       200:
  *         description: 성공
@@ -55,14 +55,11 @@ router.get('/', async (req, res, next) => {
  *       400:
  *         $ref: '#/components/res/BadRequest'
  */
-router.get('/:c_name', async (req,res,next) => {
+router.get('/:c_id', async (req,res,next) => {
         try{
-            let c_name = req.params.c_name;
-            const data = await pool.query('SELECT c_id FROM category WHERE c_name = ?', c_name)
-            console.log(data[0])
-            let c_id = data[0];
-            const data2 = await pool.query('SELECT * FROM article WHERE c_id = ?', c_id)
-            return res.json(data2[0])
+            let c_id = req.params.c_id;
+            const data = await pool.query('SELECT * FROM article WHERE c_id = ?', c_id)
+            return res.json(data[0])
         }catch (err){
             return  res.status(400).json(err)
         }
