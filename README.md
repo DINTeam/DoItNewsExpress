@@ -50,16 +50,33 @@ which should result in output such as:
 indicating the server is now listening at port 3001.
 
 ### Using your credentials
-The server's code includes placeholder credentials that are set up to work with those supplied as an example in the SDK's documentation. You can use your own credentials by setting the `API_KEY` and `API_SECRET` environment variables before running the server. For example, you could supply your own credentials by running the server like so:
+The Server does not offer mysql credentials.
+So you have to running your own mysql server.
 
+We built it with [here](https://aws.amazon.com/ko/rds/?nc2=type_a) - the amazon web service RDS.
+And after that, make your own db configuration file.
+You can change your credential settings in [this file](./utils/pool.js)
+
+We just wrote dead server configuration the file now.
+
+So you can change it like the below:
 ```
-API_KEY=my_api_key API_SECRET=my_api_secret rackup
+const mysql = require('mysql');
+const config = require('./db_config.json');
+//db_config.json file are needed!
+
+var pool = mysql.createPool(config);
 ```
 
-or for Windows based systems:
-
+db_config.json examples:
 ```
-cmd /C "set API_KEY=my_api_key && set API_SECRET=my_api_secret && rackup"
+{
+  "host": "<host>",
+  "user": "<username>",
+  "password": "<password>",
+  "database": "<database>",
+  "connectionLimit": 30
+}
 ```
 
 Our Server contains mail sending system with SendGrid.
