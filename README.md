@@ -23,7 +23,7 @@ node -v
 Once that's out of the way, open a terminal and run the following command:
 
 ```
-install npm
+apt-get install npm
 ```
 
 To confirm that you have npm installed you can run this command in your terminal:
@@ -61,6 +61,12 @@ or for Windows based systems:
 ```
 cmd /C "set API_KEY=my_api_key && set API_SECRET=my_api_secret && rackup"
 ```
+
+Our Server contains mail sending system with SendGrid.
+So If you want to use it, you need to obatin your own API Key.
+You can do this in [here](https://sendgrid.com/)
+
+We use API_KEY alias on your computer, so just add it with solution by SendGrid.
 
 ## License
 The sample backend is available under the MIT license. See the [LICENSE](./LICENSE) file for more info.
