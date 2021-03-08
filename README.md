@@ -49,6 +49,12 @@ which should result in output such as:
 
 indicating the server is now listening at port 3001.
 
+## After running Server
+
+You can visit your Swagger API docs with the below links.
+
+http://<host>:3000/api_docs
+
 ### Using your credentials
 The Server does not offer mysql credentials.
 So you have to running your own mysql server.
