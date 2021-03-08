@@ -68,7 +68,7 @@ router.get('/', async (req, res) => {
  *     tags: [article]
  *     parameters:
  *       - in: path
- *         name: ar-id
+ *         name: ar_id
  *         required: true
  *         type: int
  *         description: 기사 id 정보
@@ -85,7 +85,8 @@ router.get('/', async (req, res) => {
 router.get('/:ar_id', async (req, res) => {
         try {
             let ar_id = req.params.ar_id;
-            const result =await pool.query('update article set ar_views = ar_views + 1 where ar_id = ?',{ar_id});
+            const view =await pool.query('update article set ar_views = ar_views + 1 where ar_id = ?',ar_id);
+            console.log(view[0]);
             const data=await pool.query('select * from article where ar_id =?',ar_id);
             return res.json(data[0]);
         }catch (err) {

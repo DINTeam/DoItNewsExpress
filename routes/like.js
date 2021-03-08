@@ -11,15 +11,16 @@ const pool = require('../utils/pool')
 
 /**
  * @swagger
- * /:ar_id/like :
+ * /like/{ar_id} :
  *   post:
  *     summary: 좋아요
  *     tags: [like]
  *     parameters:
- *       - in: body.ar_id
+ *       - in: path
  *         name : ar_id
+ *         required : true
  *         type: int
- *         description: 기사 id 조회
+ *         description: 기사 id 정보
  *
  *     responses:
  *       200:
@@ -32,15 +33,14 @@ const pool = require('../utils/pool')
  *         $ref: '#/components/res/BadRequest'
  */
 
-router.post('/:ar_id/like', async(req,res) =>{
-    if(req.userInfo){
+router.post('/:ar_id', async(req,res) =>{
         try{
-            var {ar_id} = req.body;
-            pool.beginTransaction(async(err) => {
-                pool.query('select like_check from is_like where ar_id =?',ar_id,async (req,res) => {
+            var ar_id = req.params.ar_id;
+            await pool.beginTransaction(async(err) => {
+                await pool.query('select like_check from is_like where ar_id =?',ar_id,async (req,res) => {
                     if(like_check == 0){
-                        pool.query('insert into is_like(ar_id,like_check) values (?,1)',ar_id);
-                        pool.query('update article set ar_likes = ar_likes+1 where ar_id=?', ar_id);
+                        let data = await pool.query('insert into is_like(ar_id,like_check) values (?,1)',ar_id);
+                        let data2 = await pool.query('update article set ar_likes = ar_likes+1 where ar_id=?', ar_id);
                     }else if(like_check==1){
                         pool.query('delete from is_like where ar_id =? ',ar_id);
                     }
@@ -49,8 +49,5 @@ router.post('/:ar_id/like', async(req,res) =>{
         }catch(err) {
             return res.send(500).json(err);
         }
-    }else{
-        res.status(403).send({msg : "권한이 없습니다."});
-    }
 });
 module.exports = router;
