@@ -63,7 +63,7 @@ router.get('/:user_id',async(req,res) => {
  *         name: user_id
  *         required: true
  *         type: int
- *         description: 스크랩을 하는 사용자의 id 정보
+ *         description: 사용자 id 정보
  *       - in: path
  *         name: ar_id
  *         required: true
@@ -81,13 +81,15 @@ router.get('/:user_id',async(req,res) => {
  */
 router.post('/:user_id/:ar_id',async(req,res) => {
         try{
-            let user_id = req.params.user_id;
             let ar_id = req.params.ar_id;
-            let ar_title = await pool.query('select ar_title from article where ar_id=?',ar_id);
-            let ar_reporter = await pool.query('select ar_reporter from article where ar_id=?',ar_id);
-            let like_cnt= await pool.query('select like_cnt from article where ar_id=?',ar_id);
+            let user_id = req.params.user_id;
+            console.log(ar_id);
+            let data2 = await pool.query('select ar_title,ar_reporter,like_cnt from article where ar_id=?',ar_id);
+            let ar_title = data2[0][0].ar_title;
+            let ar_reporter = data2[0][0].ar_reporter;
+            let like_cnt = data2[0][0].like_cnt;
             let s_time = Date.now();
-            const data = await pool.query('insert into scrap(ar_title,ar_reporter,s_time,like_cnt,ar_id,user_id) values (?,?,?,?,?,?)',[ar_title,ar_reporter,s_time,like_cnt,ar_id,user_id]);
+            const data = await pool.query('insert into scrap(ar_title,ar_reporter,s_time,ar_id,like_cnt,user_id) values (?,?,?,?,?,?)',[ar_title,ar_reporter,s_time,ar_id,like_cnt,user_id]);
             return res.json(data[0]);
         }catch(err){
             res.status(400).json(err);
