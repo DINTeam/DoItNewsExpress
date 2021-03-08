@@ -2,13 +2,13 @@
 
 # Backend
 
-This project serves as a very slim backend designed to work with Klarna on Demand's sample applications ([iOS](https://github.com/klarna/klarna-on-demand-ios),  [Android](https://github.com/klarna/klarna-on-demand-android) or [Javascript](https://github.com/klarna/klarna-on-demand-js)) in order to demonstrate proper use of Klarna's on Demand SDK. This server receives purchase requests issued by the sample applications, and forwards these requests to Klarna.
+This project provides article writing and portfolio writing services for prospective reporters. 
 
-The server itself is implemented in [Ruby](https://www.ruby-lang.org/en/) using [Sinatra](http://www.sinatrarb.com/). Even if you are not familiar with the language do not worry, as the code has been extensively documented. The file that contains the entirety of the server is [backend.rb](./backend.rb).
+The server itself is implemented in [Node.js](https://nodejs.org/en/) using [Express](https://expressjs.com/en/). Even if you are not familiar with the language do not worry, as the code has been extensively documented.
 
 The server logs all API requests it performs to the terminal, so you can see what's going on even without diving into the code.
 
-## Integration with the Klarna on Demand API
+## Integration with the Swagger API
 This backend interacts directly with Swagger API, specifically for the purpose of authorizing and capturing orders. You can read more about the API [here](https://swagger.io/).
 
 ## Running the server
